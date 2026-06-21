@@ -1,0 +1,3642 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Livro Digital de História</title>
+    <style>
+      /* Configurações Gerais */
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: "Georgia", serif;
+      }
+
+      body {
+        background-color: #e6dfd1; /* Fundo simulando mesa de estudos */
+        color: #2c251e;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 40px 20px;
+      }
+
+      /* Estilo da Página do Livro */
+      .page {
+        background-color: #fffaf0; /* Cor de papel pólen */
+        width: 100%;
+        max-width: 750px;
+        min-height: 550px;
+        padding: 50px 60px;
+        box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.2);
+        border-radius: 4px;
+        border: 1px solid #dcd1b4;
+        display: none; /* Esconde as páginas por padrão */
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative;
+        line-height: 1.6;
+      }
+
+      /* Efeito visual de páginas embaixo do livro */
+      .page::after {
+        content: "";
+        position: absolute;
+        bottom: -5px;
+        right: 2px;
+        left: 2px;
+        height: 5px;
+        background: #fffaf0;
+        border: 1px solid #dcd1b4;
+        border-top: none;
+        box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.1);
+        z-index: -1;
+      }
+
+      /* Mostrar apenas a página activa */
+      .active {
+        display: flex;
+      }
+
+      /* --- CAPA --- */
+      #capa {
+        text-align: center;
+        justify-content: center;
+        gap: 40px;
+        border: 2px solid #8b5a2b;
+        margin: 10px;
+        padding: 40px;
+      }
+
+      #capa h1 {
+        font-size: 3.2rem;
+        color: #5c4033;
+        margin-bottom: 15px;
+      }
+
+      #capa .subtitulo {
+        font-style: italic;
+        color: #7f6040;
+        font-size: 1.4rem;
+      }
+
+      /* --- BOTÕES --- */
+      .btn-container {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 30px;
+        border-top: 1px solid #e2d7bd;
+        padding-top: 20px;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        background-color: #8b5a2b;
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        font-size: 1rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        transition:
+          background 0.2s,
+          transform 0.1s;
+      }
+
+      .btn:hover {
+        background-color: #704722;
+        transform: translateY(-1px);
+      }
+
+      .btn:active {
+        transform: translateY(1px);
+      }
+
+      .btn-secundario {
+        background-color: #eaddca;
+        color: #5c4033;
+        border: 1px solid #8b5a2b;
+      }
+
+      .btn-secundario:hover {
+        background-color: #dcd1b4;
+      }
+
+      /* --- SUMÁRIO --- */
+      #sumario h2 {
+        font-size: 2.2rem;
+        color: #5c4033;
+        text-align: center;
+        margin-bottom: 30px;
+        border-bottom: 1px solid #8b5a2b;
+        padding-bottom: 10px;
+      }
+
+      .lista-capitulos {
+        list-style: none;
+      }
+
+      .lista-capitulos li {
+        padding: 15px 0;
+        border-bottom: 1px dashed #c0b283;
+        transition: padding-left 0.2s;
+      }
+
+      .lista-capitulos li:hover {
+        padding-left: 10px;
+      }
+
+      .lista-capitulos a {
+        color: #8b5a2b;
+        text-decoration: none;
+        font-size: 1.2rem;
+        font-weight: bold;
+        display: block;
+      }
+
+      /* --- FORMATAÇÃO DO TEXTO DAS AULAS --- */
+      .conteudo-livro h2 {
+        font-size: 1.8rem;
+        color: #5c4033;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #8b5a2b;
+        padding-bottom: 5px;
+        text-transform: uppercase;
+      }
+
+      .conteudo-livro h3 {
+        font-size: 1.3rem;
+        color: #704722;
+        margin: 25px 0 10px 0;
+      }
+
+      .objetivos {
+        background-color: #fcf6eb;
+        border-left: 4px solid #c0b283;
+        padding: 15px;
+        margin-bottom: 25px;
+        font-size: 0.95rem;
+      }
+
+      .objetivos ul {
+        margin-left: 20px;
+        margin-top: 5px;
+      }
+
+      p {
+        margin-bottom: 15px;
+        text-align: justify;
+      }
+
+      /* Citações */
+      blockquote {
+        font-style: italic;
+        background-color: #fbf8f0;
+        border-left: 3px double #8b5a2b;
+        padding: 10px 20px;
+        margin: 15px 0;
+        color: #554433;
+      }
+
+      /* Listas */
+      .lista-comum {
+        margin-left: 20px;
+        margin-bottom: 20px;
+      }
+      .lista-comum li {
+        margin-bottom: 8px;
+      }
+
+      /* Tabelas */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        font-size: 0.95rem;
+      }
+
+      th,
+      td {
+        border: 1px solid #dcd1b4;
+        padding: 12px;
+        text-align: left;
+      }
+
+      th {
+        background-color: #8b5a2b;
+        color: white;
+      }
+
+      tr:nth-child(even) {
+        background-color: #fbf8f2;
+      }
+
+      /* Exercícios e Gabarito */
+      .exercicios {
+        background-color: #f7f3e8;
+        padding: 20px;
+        border-radius: 4px;
+        margin-top: 30px;
+      }
+
+      .questao {
+        margin-bottom: 20px;
+      }
+
+      .alternativas {
+        list-style: none;
+        margin-left: 10px;
+        margin-top: 5px;
+      }
+
+      /* Gabarito Retrátil */
+      details {
+        background-color: #eaddca;
+        padding: 10px;
+        margin-top: 20px;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      details summary {
+        font-weight: bold;
+        color: #5c4033;
+      }
+      details p {
+        margin-top: 10px;
+        background: #fffaf0;
+        padding: 10px;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 1. CAPA DO LIVRO -->
+    <div id="capa" class="page active">
+      <div>
+        <h1>História Geral</h1>
+        <p class="subtitulo">Uma jornada através do tempo</p>
+      </div>
+      <div class="btn-container">
+        <button class="btn" onclick="mudarPagina('sumario')">
+          Entrar no Livro
+        </button>
+      </div>
+    </div>
+
+    <!-- 2. SUMÁRIO (ÍNDICE) -->
+    <div id="sumario" class="page">
+      <div>
+        <h2>Sumário</h2>
+        <ul class="lista-capitulos">
+          <li>
+            <a href="#" onclick="mudarPagina('aula1')"
+              >Aula 1: O Surgimento do Ser Humano e o Processo de Hominização</a
+            >
+          </li>
+
+          <li>
+            <a href="#" onclick="mudarPagina('aula2')"
+              >Aula 2: O Paleolítico e o Domínio do Fogo</a
+            >
+          </li>
+
+          <li>
+            <a href="#" onclick="mudarPagina('aula3')"
+              >Aula 3: O Neolítico e a Revolução Agrícola</a
+            >
+          </li>
+
+          <li>
+            <a href="#" onclick="mudarPagina('aula4')"
+              >Aula 4: As Civilizações da Antiguidade Oriental</a
+            >
+          </li>
+
+          <li>
+            <a href="#" onclick="mudarPagina('aula5')"
+              >Aula 5: A Grécia Antiga: Cidades-Estado, Democracia e Cultura</a
+            >
+          </li>
+
+          <li>
+            <a href="#" onclick="mudarPagina('aula6')"
+              >Aula 6: Roma Antiga: Monarquia, República, Império e o Legado
+              Romano</a
+            >
+          </li>
+          <li>
+            <a href="#" onclick="mudarPagina('aula7')"
+              >Aula 7:A Alta Idade Média e a Formação Do Feudalismo</a
+            >
+          </li>
+          <li>
+            <a href="#" onclick="mudarPagina('aula8')"
+              >Aula 8: AS CRUZADAS E O RENASCIMENTO COMERCIAL E URBANO
+            </a>
+          </li>
+          <li><a href="#" onclick="mudarPagina('aula9')"> Aula 9: RENASCIMENTO CULTURAL E O HUMANISMO</a></li>
+          <li><a href="#" onclick="mudarPagina('aula10')"> Aula 10: A REFORMA PROTESTANTE E A CONTRARREFORMA CATÓLICA</a>
+            
+          <li><a href="#" onclick="mudarPagina('aula11')">Aula 11: Grandes Navegações e Expansão Marítima Europeia</a>
+          </li>
+        </ul>
+      </div>
+      <div class="btn-container">
+        <button class="btn" onclick="mudarPagina('capa')">
+          Voltar para a Capa
+        </button>
+      </div>
+    </div>
+
+    <!-- 3. AULA 1 -->
+    <div id="aula1" class="page">
+      <div class="conteudo-livro">
+        <h2>AULA 1 – O SURGIMENTO DO SER HUMANO E O PROCESSO DE HOMINIZAÇÃO</h2>
+
+        <div class="objetivos">
+          <strong>Objetivos da Aula:</strong>
+          <ul>
+            <li>Compreender o que é o processo de hominização.</li>
+            <li>
+              Identificar as principais espécies do gênero Homo e suas
+              características.
+            </li>
+            <li>
+              Analisar a importância das transformações biológicas e culturais
+              na formação da humanidade.
+            </li>
+            <li>
+              Relacionar o desenvolvimento humano ao surgimento da cultura e da
+              sociedade.
+            </li>
+          </ul>
+        </div>
+
+        <h3>1. O que é o processo de hominização?</h3>
+        <p>
+          Chamamos de hominização o longo processo evolutivo que levou ao
+          surgimento do ser humano moderno (Homo sapiens). Esse processo ocorreu
+          ao longo de milhões de anos, com transformações biológicas,
+          comportamentais e culturais.
+        </p>
+
+        <blockquote>
+          “Durante quase toda a sua existência, o Homo sapiens foi apenas mais
+          uma entre várias espécies humanas que coexistiam na Terra.”
+          <br /><strong style="font-size: 0.85rem"
+            >— Yuval Noah Harari (Sapiens, 2011)</strong
+          >
+        </blockquote>
+
+        <h3>2. As origens do ser humano</h3>
+        <ul class="lista-comum">
+          <li>
+            <strong>Local:</strong> África (por isso, dizemos que o ser humano
+            tem origem africana).
+          </li>
+          <li>
+            <strong>Período:</strong> cerca de 7 milhões de anos atrás, surgiram
+            os primeiros hominídeos, ancestrais comuns entre humanos e
+            chimpanzés.
+          </li>
+        </ul>
+
+        <h4 style="color: #5c4033; margin-top: 15px">
+          Principais espécies do gênero Homo:
+        </h4>
+        <table>
+          <thead>
+            <tr>
+              <th>Espécie</th>
+              <th>Tempo Aproximado</th>
+              <th>Características Principais</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Australopithecus afarensis</strong></td>
+              <td>4 milhões de anos</td>
+              <td>Andava ereto, mas com cérebro pequeno.</td>
+            </tr>
+            <tr>
+              <td><strong>Homo habilis</strong></td>
+              <td>2,5 milhões de anos</td>
+              <td>Usava ferramentas de pedra simples.</td>
+            </tr>
+            <tr>
+              <td><strong>Homo erectus</strong></td>
+              <td>1,8 milhão de anos</td>
+              <td>Dominou o fogo, viveu em grupos.</td>
+            </tr>
+            <tr>
+              <td><strong>Homo neanderthalensis</strong></td>
+              <td>200 mil anos</td>
+              <td>Forte, adaptado ao frio, enterrava os mortos.</td>
+            </tr>
+            <tr>
+              <td><strong>Homo sapiens</strong></td>
+              <td>300 mil anos – atual</td>
+              <td>Linguagem complexa, arte e organização social.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>3. Principais avanços do processo de hominização</h3>
+        <ol class="lista-comum" style="margin-left: 25px">
+          <li>
+            <strong>Bipedismo:</strong> andar sobre dois pés &rarr; liberou as
+            mãos para usar ferramentas.
+          </li>
+          <li>
+            <strong>Uso do fogo:</strong> domínio do ambiente, cozimento de
+            alimentos e proteção.
+          </li>
+          <li>
+            <strong>Desenvolvimento do cérebro:</strong> aumento da capacidade
+            cognitiva.
+          </li>
+          <li>
+            <strong>Linguagem:</strong> comunicação e transmissão de
+            conhecimento.
+          </li>
+          <li>
+            <strong>Cultura:</strong> criação de símbolos, arte e rituais.
+          </li>
+        </ol>
+
+        <blockquote>
+          “O homem se tornou humano quando começou a transformar a natureza para
+          atender suas necessidades.”
+          <br /><strong style="font-size: 0.85rem"
+            >— André Prous (Arqueólogo)</strong
+          >
+        </blockquote>
+
+        <h3>4. Cultura e sociedade na Pré-História</h3>
+        <p>
+          A partir do Homo sapiens, o ser humano passou a viver em grupos
+          nômades, caçando, pescando e coletando frutos. Desenvolveram
+          instrumentos, linguagem e rituais religiosos.
+        </p>
+        <p>
+          Esse período inicial da história humana é conhecido como
+          <strong>Paleolítico (“pedra antiga”)</strong>, e será o tema da
+          próxima aula.
+        </p>
+
+        <h3>Resumo – Linha do Tempo da Hominização</h3>
+        <p>
+          7 milhões a.C. &rarr; primeiros hominídeos (África)<br />
+          2,5 milhões a.C. &rarr; Homo habilis (ferramentas)<br />
+          1,8 milhão a.C. &rarr; Homo erectus (fogo)<br />
+          200 mil a.C. &rarr; Neandertais<br />
+          300 mil a.C. &rarr; Homo sapiens
+        </p>
+
+        <div class="exercicios">
+          <h3>Atividade de Fixação (ENEM / Vestibular)</h3>
+          <div class="questao">
+            <p>
+              <strong>1. (ENEM – adaptada)</strong> O domínio do fogo
+              representou um marco importante na evolução humana porque:
+            </p>
+            <ul class="alternativas">
+              <li>a) reduziu a necessidade de caçar e pescar.</li>
+              <li>b) aumentou a dependência dos grupos em relação ao clima.</li>
+              <li>
+                c) possibilitou o preparo dos alimentos e a defesa contra
+                predadores.
+              </li>
+              <li>
+                d) facilitou a vida sedentária e o surgimento da agricultura.
+              </li>
+            </ul>
+          </div>
+          <div class="questao">
+            <p>
+              <strong>2. (UFPR – adaptada)</strong> O termo “hominização”
+              refere-se:
+            </p>
+            <ul class="alternativas">
+              <li>a) à invenção da escrita pelos povos antigos.</li>
+              <li>b) à evolução biológica e cultural dos seres humanos.</li>
+              <li>c) ao surgimento das primeiras cidades.</li>
+              <li>d) à criação das religiões primitivas.</li>
+            </ul>
+          </div>
+          <div class="questao">
+            <p><strong>3. Questão interpretativa:</strong></p>
+            <p>
+              Explique, com suas palavras, como o domínio do fogo e o
+              desenvolvimento da linguagem transformaram a vida dos primeiros
+              humanos.
+            </p>
+          </div>
+          <details>
+            <summary>Clique aqui para ver o Gabarito</summary>
+            <p>
+              <strong>1. Resposta: C</strong> - possibilitou o preparo dos
+              alimentos e a defesa contra predadores.
+            </p>
+            <p>
+              <strong>2. Resposta: B</strong> - à evolução biológica e cultural
+              dos seres humanos.
+            </p>
+            <p>
+              <strong>3. Resposta sugerida:</strong> Deve mencionar o aumento da
+              segurança, da comunicação e da sociabilidade humana.
+            </p>
+          </details>
+        </div>
+      </div>
+      <div class="btn-container">
+        <button class="btn btn-secundario" onclick="mudarPagina('sumario')">
+          Voltar ao Sumário
+        </button>
+        <button class="btn" onclick="mudarPagina('aula2')">
+          Ir para a Aula 2 &rarr;
+        </button>
+      </div>
+    </div>
+
+    <!-- 4. AULA 2 -->
+    <div id="aula2" class="page">
+      <div class="conteudo-livro">
+        <h2>AULA 2 – O PALEOLÍTICO E O DOMÍNIO DO FOGO</h2>
+
+        <div class="objetivos">
+          <strong>Objetivos da Aula:</strong>
+          <ul>
+            <li>
+              Compreender as principais características do modo de vida
+              paleolítico.
+            </li>
+            <li>
+              Analisar o uso do fogo como marco de transformação na história
+              humana.
+            </li>
+            <li>
+              Identificar as primeiras manifestações culturais e artísticas da
+              humanidade.
+            </li>
+            <li>
+              Refletir sobre o papel da cooperação e da linguagem nas sociedades
+              primitivas.
+            </li>
+          </ul>
+        </div>
+
+        <h3>1. O que foi o Paleolítico?</h3>
+        <p>
+          O termo Paleolítico vem do grego <em>palaios</em> (antigo) +
+          <em>lithos</em> (pedra), significando “Pedra Antiga”. Esse período vai
+          aproximadamente de 2,5 milhões de anos a.C. até 10.000 a.C., e
+          corresponde à maior parte da história humana.
+        </p>
+        <p>
+          Foi durante o Paleolítico que surgiram as primeiras sociedades
+          humanas, formadas por grupos nômades que viviam da caça, pesca e
+          coleta de frutos e raízes.
+        </p>
+
+        <blockquote>
+          “O homem do Paleolítico não dominava a natureza, mas aprendeu a
+          conviver com ela.”
+          <br /><strong style="font-size: 0.85rem"
+            >— Jacques Le Goff (Historiador)</strong
+          >
+        </blockquote>
+
+        <h3>🪨 2. Vida e organização social</h3>
+        <ul class="lista-comum">
+          <li>
+            <strong>Nômades:</strong> não tinham moradia fixa; deslocavam-se
+            conforme o clima e a disponibilidade de alimentos.
+          </li>
+          <li>
+            <strong>Grupos pequenos:</strong> formados por famílias ou clãs.
+          </li>
+          <li>
+            <strong>Divisão simples do trabalho:</strong> homens caçavam e
+            pescavam, mulheres cuidavam da coleta e dos filhos.
+          </li>
+          <li>
+            <strong>Sobrevivência coletiva:</strong> o grupo era essencial à
+            segurança e à alimentação.
+          </li>
+        </ul>
+        <p>
+          O desenvolvimento da linguagem foi fundamental, pois permitiu
+          comunicar estratégias, transmitir conhecimento e criar vínculos
+          sociais.
+        </p>
+
+        <h3>3. O domínio do fogo – o grande salto da humanidade</h3>
+        <p>
+          O fogo foi uma das maiores conquistas do <em>Homo erectus</em> e
+          depois do <em>Homo sapiens</em>.
+        </p>
+
+        <h4 style="color: #5c4033; margin-top: 15px">Importância do fogo:</h4>
+        <ol class="lista-comum" style="margin-left: 25px">
+          <li>
+            <strong>Proteção:</strong> afastava animais selvagens e permitia
+            acampar à noite.
+          </li>
+          <li>
+            <strong>Culinária:</strong> o cozimento dos alimentos facilitou a
+            digestão e reduziu doenças.
+          </li>
+          <li>
+            <strong>Luz e calor:</strong> possibilitou viver em regiões frias e
+            ampliar as atividades noturnas.
+          </li>
+          <li>
+            <strong>Sociabilidade:</strong> reunir-se em torno do fogo
+            estimulava a convivência e a transmissão de histórias.
+          </li>
+        </ol>
+
+        <blockquote>
+          “Cozinhar nos tornou humanos. O fogo transformou nossa alimentação,
+          nosso corpo e nossa mente.”
+          <br /><strong style="font-size: 0.85rem"
+            >— Richard Wrangham (Catching Fire, 2009)</strong
+          >
+        </blockquote>
+
+        <h3>4. Culture e arte no Paleolítico</h3>
+        <p>
+          Os seres humanos começaram a desenvolver uma consciência simbólica,
+          expressa por meio da arte e dos rituais.
+        </p>
+
+        <h4 style="color: #5c4033; margin-top: 15px">
+          Principais manifestações culturais:
+        </h4>
+        <ul class="lista-comum">
+          <li>
+            <strong>Arte rupestre:</strong> pinturas e gravuras nas paredes das
+            cavernas, como as de Lascaux (França) e Altamira (Espanha).
+            Representavam animais, caçadas e figuras humanas, possuindo uma
+            provável função mágica ou religiosa, ligada à fertilidade e à caça.
+          </li>
+          <li>
+            <strong>Instrumentos de pedra:</strong> lascados manualmente para
+            cortar, caçar e raspar peles.
+          </li>
+          <li>
+            <strong>Rituais funerários:</strong> já indicam uma crença na vida
+            após a morte.
+          </li>
+        </ul>
+
+        <h3>Resumo do Paleolítico</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Aspecto</th>
+              <th>Característica</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Economia</strong></td>
+              <td>Caça, pesca e coleta</td>
+            </tr>
+            <tr>
+              <td><strong>Sociedade</strong></td>
+              <td>Nômade, em grupos pequenos</td>
+            </tr>
+            <tr>
+              <td><strong>Tecnologia</strong></td>
+              <td>Pedra lascada, domínio do fogo</td>
+            </tr>
+            <tr>
+              <td><strong>Cultura</strong></td>
+              <td>Arte rupestre e rituais</td>
+            </tr>
+            <tr>
+              <td><strong>Importância</strong></td>
+              <td>Desenvolvimento da linguagem e da vida em grupo</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="exercicios">
+          <h3>Atividade de Fixação (ENEM / Vestibular)</h3>
+          <div class="questao">
+            <p>
+              <strong>1. (ENEM – adaptada)</strong> O uso do fogo pelos
+              primeiros grupos humanos:
+            </p>
+            <ul class="alternativas">
+              <li>a) Permitiu o domínio completo da natureza.</li>
+              <li>
+                b) Favoreceu a adaptação ao meio ambiente e o desenvolvimento
+                cultural.
+              </li>
+              <li>c) Tornou o homem sedentário e agricultor.</li>
+              <li>d) Levou ao surgimento das primeiras cidades.</li>
+            </ul>
+          </div>
+          <div class="questao">
+            <p>
+              <strong>2. (FUVEST – adaptada)</strong> As paintings rupestres do
+              Paleolítico indicam que:
+            </p>
+            <ul class="alternativas">
+              <li>a) Os primeiros humanos já possuíam escrita desenvolvida.</li>
+              <li>b) A arte surgiu apenas como passatempo.</li>
+              <li>
+                c) Existia uma relação simbólica entre o homem e a natureza.
+              </li>
+              <li>d) Os homens viviam em palácios e aldeias organizadas.</li>
+            </ul>
+          </div>
+          <div class="questao">
+            <p><strong>3. Questão dissertativa:</strong></p>
+            <p>
+              Explique como o domínio do fogo e a arte rupestre representam
+              avanços culturais fundamentais no processo de humanização.
+            </p>
+          </div>
+          <details>
+            <summary>Clique aqui para ver o Gabarito</summary>
+            <p>
+              <strong>1. Resposta: B</strong> - Favoreceu a adaptação ao meio
+              ambiente e o desenvolvimento cultural.
+            </p>
+            <p>
+              <strong>2. Resposta: C</strong> - Existia uma relação simbólica
+              entre o homem e a natureza.
+            </p>
+            <p>
+              <strong>3. Resposta sugerida:</strong> Deve abordar o fogo como
+              tecnologia de sobrevivência e convívio social, e a arte rupestre
+              como manifestação de pensamento abstrato e simbólico.
+            </p>
+          </details>
+        </div>
+      </div>
+      <div class="btn-container">
+        <button class="btn btn-secundario" onclick="mudarPagina('aula1')">
+          &larr; Voltar para (Aula 1)
+        </button>
+        <button class="btn btn-secundario" onclick="mudarPagina('sumario')">
+          Sumário
+        </button>
+        <button class="btn" onclick="mudarPagina('aula3')">
+          Ir para a Aula 3 &rarr;
+        </button>
+      </div>
+    </div>
+
+    <!-- 5. AULA 3 -->
+    <div id="aula3" class="page">
+      <div class="conteudo-livro">
+        <h2>AULA 3 – O NEOLÍTICO E A REVOLUÇÃO AGRÍCOLA</h2>
+
+        <div class="objetivos">
+          <strong>Objetivos da Aula:</strong>
+          <ul>
+            <li>
+              Compreender o que foi a Revolution Agrícola e seu papel na
+              história humana.
+            </li>
+            <li>
+              Analisar as transformações sociais, econômicas e culturais do
+              Neolítico.
+            </li>
+            <li>
+              Identificar os primeiros sinais de sedentarismo e surgimento das
+              aldeias.
+            </li>
+            <li>
+              Relacionar essas mudanças ao surgimento das civilizações antigas.
+            </li>
+          </ul>
+        </div>
+
+        <h3>1. O que foi o Neolítico?</h3>
+        <p>
+          O termo Neolítico vem do grego <em>neo</em> (novo) +
+          <em>lithos</em> (pedra), significando “Pedra Nova”. Esse período vai
+          de aproximadamente 10.000 a.C. a 4.000 a.C. e marca uma transformação
+          profunda na vida humana.
+        </p>
+        <p>
+          O homem deixa de ser nômade, começa a produzir seu próprio alimento e
+          forma as primeiras aldeias fixas. Esse processo é conhecido como
+          <strong>Revolução Agrícola</strong>.
+        </p>
+
+        <h3>2. A Revolução Agrícola</h3>
+        <p>
+          A Revolução Agrícola foi um conjunto de mudanças econômicas, técnicas
+          e sociais que transformou o modo de vida humano.
+        </p>
+
+        <h4 style="color: #5c4033; margin-top: 15px">
+          Principais transformações:
+        </h4>
+        <table>
+          <thead>
+            <tr>
+              <th>Antes (Paleolítico)</th>
+              <th>Depois (Neolítico)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Caça e coleta</td>
+              <td>Agricultura e pecuária</td>
+            </tr>
+            <tr>
+              <td>Nômades</td>
+              <td>Sedentários</td>
+            </tr>
+            <tr>
+              <td>Pedra lascada</td>
+              <td>Pedra polida</td>
+            </tr>
+            <tr>
+              <td>Grupos pequenos</td>
+              <td>Aldeias e vilas</td>
+            </tr>
+            <tr>
+              <td>Divisão simples de tarefas</td>
+              <td>Início da especialização do trabalho</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <blockquote>
+          “O homem deixou de ser escravo da natureza e passou a transformá-la.”
+          <br /><strong style="font-size: 0.85rem"
+            >— Gordon Childe (Historiador)</strong
+          >
+        </blockquote>
+
+        <h3>3. O surgimento das aldeias</h3>
+        <p>
+          A agricultura levou à fixação do homem à terra. As pessoas passaram a
+          construir moradias fixas, guardar excedentes alimentares e criar
+          animais domesticados.
+        </p>
+
+        <h4 style="color: #5c4033; margin-top: 15px">
+          Regiões onde surgiram as primeiras aldeias:
+        </h4>
+        <ul class="lista-comum">
+          <li>Vale do Nilo (Egito)</li>
+          <li>Vale do Tigre e Eufrates (Mesopotâmia)</li>
+          <li>Vale do Indo (Índia)</li>
+          <li>Vale do Rio Amarelo (China)</li>
+        </ul>
+        <p>
+          Essas regiões férteis deram origem às chamadas
+          <em>civilizações hidráulicas</em>, tema do próximo módulo.
+        </p>
+
+        <h3>4. Inovações técnicas e sociais</h3>
+        <ul class="lista-comum">
+          <li><strong>Cerâmica:</strong> armazenamento de grãos e líquidos.</li>
+          <li>
+            <strong>Tecelagem:</strong> fabricação de roupas e cobertores.
+          </li>
+          <li>
+            <strong>Ferramentas polidas:</strong> mais resistentes e precisas.
+          </li>
+          <li>
+            <strong>Divisão social do trabalho:</strong> agricultores, artesãos
+            e líderes.
+          </li>
+          <li>
+            <strong>Religião e rituais:</strong> cultos ligados à fertilidade da
+            terra e à colheita.
+          </li>
+        </ul>
+        <p>
+          A mulher teve papel central na agricultura inicial, pois era
+          responsável pela coleta e observação das plantas.
+        </p>
+
+        <h3>5. Consequências da Revolução Agrícola</h3>
+        <ol class="lista-comum" style="margin-left: 25px">
+          <li>
+            <strong>Aumento populacional:</strong> mais alimentos e segurança.
+          </li>
+          <li>
+            <strong>Propriedade privada:</strong> surgimento da ideia de “meu” e
+            “teu”.
+          </li>
+          <li>
+            <strong>Hierarquias sociais:</strong> alguns se tornaram
+            proprietários e líderes.
+          </li>
+          <li>
+            <strong>Trocas e comércio:</strong> início da economia de
+            excedentes.
+          </li>
+          <li>
+            <strong>Germes das civilizações antigas:</strong> preparando caminho
+            para escrita, leis e Estado.
+          </li>
+        </ol>
+
+        <blockquote>
+          “A agricultura foi o maior erro da história humana.”
+          <br /><strong style="font-size: 0.85rem"
+            >— Jared Diamond (Armas, Germes e Aço, 1997)</strong
+          >
+        </blockquote>
+        <p
+          style="
+            font-style: italic;
+            font-size: 0.9rem;
+            margin-top: -10px;
+            margin-left: 20px;
+            color: #554433;
+          "
+        >
+          (Jared Diamond refere-se ao aumento das desigualdades, surgimento de
+          novas doenças decorrentes do convívio com animais e conflitos por
+          terras após o sedentarismo.)
+        </p>
+
+        <h3>6. Cultura e religiosidade</h3>
+        <p>
+          As comunidades neolíticas tinham uma visão sagrada da natureza.
+          Acreditavam em deuses ligados à terra, à chuva e à fertilidade. Surgem
+          os primeiros templos e rituais agrícolas, como o de Çatal Höyük (atual
+          Turquia).
+        </p>
+
+        <h3>Resumo – O Neolítico em Síntese</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Aspecto</th>
+              <th>Característica</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Economia</strong></td>
+              <td>Agricultura e pecuária</td>
+            </tr>
+            <tr>
+              <td><strong>Sociedade</strong></td>
+              <td>Sedentária, aldeias e vilas</td>
+            </tr>
+            <tr>
+              <td><strong>Tecnologia</strong></td>
+              <td>Pedra polida, cerâmica, tecelagem</td>
+            </tr>
+            <tr>
+              <td><strong>Cultura</strong></td>
+              <td>Cultos agrícolas e divisão do trabalho</td>
+            </tr>
+            <tr>
+              <td><strong>Importância</strong></td>
+              <td>Base para o surgimento das civilizações</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="exercicios">
+          <h3>Atividade de Fixação (ENEM / Vestibular)</h3>
+
+          <div class="questao">
+            <p>
+              <strong>1. (ENEM – adaptada)</strong> A Revolução Agrícola marcou
+              a transição da humanidade porque:
+            </p>
+            <ul class="alternativas">
+              <li>a) promoveu o abandono das ferramentas de pedra.</li>
+              <li>b) tornou o homem nômade e dependente do clima.</li>
+              <li>
+                c) transformou caçadores e coletores em produtores de alimentos.
+              </li>
+              <li>d) fez surgir a escrita e os primeiros impérios.</li>
+            </ul>
+          </div>
+
+          <div class="questao">
+            <p>
+              <strong>2. (UERJ – adaptada)</strong> A vida sedentária do
+              Neolítico resultou diretamente:
+            </p>
+            <ul class="alternativas">
+              <li>a) na invenção da roda e do alfabeto.</li>
+              <li>
+                b) no crescimento populacional e no surgimento das aldeias.
+              </li>
+              <li>c) na destruição das florestas e rios.</li>
+              <li>d) na separação entre Estado e religião.</li>
+            </ul>
+          </div>
+
+          <div class="questao">
+            <p><strong>3. Questão dissertativa:</strong></p>
+            <p>
+              Explique como a agricultura e o sedentarismo alteraram a forma de
+              organização social dos grupos humanos.
+            </p>
+          </div>
+
+          <details>
+            <summary>Clique aqui para ver o Gabarito</summary>
+            <p>
+              <strong>1. Resposta: C</strong> - transformou caçadores e
+              coletores em produtores de alimentos.
+            </p>
+            <p>
+              <strong>2. Resposta: B</strong> - no crescimento populacional e no
+              surgimento das aldeias.
+            </p>
+            <p>
+              <strong>3. Resposta sugerida:</strong> Deve mencionar a fixação
+              definitiva ao solo, o surgimento de excedentes econômicos que
+              permitiram o comércio, o aparecimento da propriedade privada e o
+              estabelecimento de hierarquias sociais e divisões de trabalho mais
+              complexas.
+            </p>
+          </details>
+        </div>
+      </div>
+
+      <div class="btn-container">
+        <button class="btn btn-secundario" onclick="mudarPagina('aula2')">
+          &larr; Voltar para (Aula 2)
+        </button>
+        <button class="btn btn-secundario" onclick="mudarPagina('sumario')">
+          Sumário
+        </button>
+        <button class="btn" onclick="mudarPagina('aula4')">
+          Ir para a Aula 4 &rarr;
+        </button>
+      </div>
+    </div>
+
+    <!-- 6. AULA 4 -->
+    <div id="aula4" class="page">
+      <div class="conteudo-livro">
+        <h2>AULA 4 – AS CIVILIZAÇÕES DA ANTIGUIDADE ORIENTAL</h2>
+
+        <div class="objetivos">
+          <strong>Objetivos da Aula:</strong>
+          <ul>
+            <li>Compreender o conceito de civilizações hidráulicas.</li>
+            <li>
+              Identificar as principais características das sociedades do Egito,
+              Mesopotâmia, Fenícia, Hebreus e Persas.
+            </li>
+            <li>
+              Analisar o papel da religião, política e economia nessas
+              civilizações.
+            </li>
+            <li>
+              Relacionar o desenvolvimento da escrita e do Estado ao surgimento
+              da História.
+            </li>
+          </ul>
+        </div>
+
+        <h3>1. O nascimento das primeiras civilizações</h3>
+        <p>
+          Por volta de 4.000 a.C., surgiram nas margens de grandes rios as
+          primeiras civilizações humanas. Essas sociedades desenvolveram
+          agricultura irrigada, escrita e organização política centralizada.
+        </p>
+        <p>
+          São chamadas de <strong>civilizações hidráulicas</strong>, pois
+          dependiam estritamente da infraestrutura e controle das cheias dos
+          rios para sobreviver e produzir alimentos em larga escala.
+        </p>
+
+        <h4 style="color: #5c4033; margin-top: 15px">
+          Principais regiões ribeirinhas:
+        </h4>
+        <ul class="lista-comum">
+          <li><strong>Mesopotâmia:</strong> rios Tigre e Eufrates</li>
+          <li><strong>Egito:</strong> rio Nilo</li>
+          <li><strong>Índia:</strong> rio Indo</li>
+          <li><strong>China:</strong> rio Amarelo</li>
+        </ul>
+
+        <h3>2. Características gerais das civilizações orientais</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Aspecto</th>
+              <th>Características comuns</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Economia</strong></td>
+              <td>
+                Agricultura irrigada, controle de cheias, comércio e artesanato
+                urbano.
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Sociedade</strong></td>
+              <td>
+                Altamente hierarquizada, contendo reis, sacerdotes, escrevas e
+                camponeses.
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Política</strong></td>
+              <td>
+                Poder centralizado e teocrático (o soberano é visto como o
+                próprio deus ou seu representante direto).
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Religião</strong></td>
+              <td>
+                Majoritariamente politeísta (deuses associados às forças da
+                natureza).
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Cultura</strong></td>
+              <td>
+                Surgimento da escrita, arquitetura monumental e ciências
+                (matemática/astronomia).
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <blockquote>
+          “Monarquias divinas sustentadas pela fé e pela água.”
+          <br /><strong style="font-size: 0.85rem"
+            >— Jacques Pirenne (Historiador)</strong
+          >
+        </blockquote>
+
+        <h3>3. A Mesopotâmia – “Terra entre rios”</h3>
+        <p>
+          <strong>Localização:</strong> Atual Iraque, na planície entre os rios
+          Tigre e Eufrates. Foi ocupada por um mosaico de povos de culturas
+          integradas: Sumérios, Acádios, Babilônios, Assírios e Caldeus.
+        </p>
+
+        <h4 style="color: #5c4033; margin-top: 15px">Grandes Contribuições:</h4>
+        <ul class="lista-comum">
+          <li>
+            <strong>Escrita Cuneiforme:</strong> Gravada em tabletes de argila
+            fresca pelos sumérios.
+          </li>
+          <li>
+            <strong>Código de Hamurábi:</strong> Uma das primeiras compilações
+            de leis escritas da história, fundamentada na
+            <em>Lei de Talião</em> (“Olho por olho, dente por dente”).
+          </li>
+          <li>
+            <strong>Zigurates:</strong> Templos monumentais de tijolos em
+            formato de pirâmides escalonadas que serviam como centros políticos,
+            religiosos e armazéns econômicos.
+          </li>
+        </ul>
+
+        <h3>4. A Fenícia – os grandes navegadores</h3>
+        <p>
+          <strong>Localização:</strong> Estreita faixa litorânea do atual Líbano
+          e Síria. Por possuir um território montanhoso e pouco favorável à
+          agricultura extensiva, o povo fenício voltou-se maciçamente para a
+          expansão marítima e mercantil.
+        </p>
+
+        <h4 style="color: #5c4033; margin-top: 15px">Grandes Contribuições:</h4>
+        <ul class="lista-comum">
+          <li>
+            <strong>Alfabeto Fonético:</strong> Composto por 22 signos que
+            representavam sons, simplificando as complexas escritas ideográficas
+            antigas. Tornou-se a base estrutural dos alfabetos grego e latino
+            modernos.
+          </li>
+          <li>
+            <strong>Autonomia Política:</strong> Organizados em Cidades-Estado
+            independentes (como Tiro, Sídon e Biblos), governadas por uma
+            plutocracia mercantil (comerciantes ricos).
+          </li>
+          <li>
+            <strong>Comércio Mediterrâneo:</strong> Exportação de madeira de
+            cedro, tecidos finos e o famoso corante púrpura.
+          </li>
+        </ul>
+
+        <blockquote>
+          “A Fenícia foi o elo comercial e cultural entre o Oriente e o
+          Ocidente.”
+          <br /><strong style="font-size: 0.85rem"
+            >— Will Durant (Historiador)</strong
+          >
+        </blockquote>
+
+        <h3>5. Os Hebreus – o povo monoteísta</h3>
+        <p>
+          <strong>Localização:</strong> Vale da Palestina, delimitado entre as
+          margens do Mar Mediterrâneo e o rio Jordão. Sua trajetória histórica é
+          marcada por migrações sucessivas, pelo cativeiro no Egito e pela
+          subsequente libertação conduzida por Moisés (Êxodo).
+        </p>
+
+        <h4 style="color: #5c4033; margin-top: 15px">Grandes Contribuições:</h4>
+        <ul class="lista-comum">
+          <li>
+            <strong>Monoteísmo Ético:</strong> Consolidação da adoração
+            exclusiva a um único Deus universal (Yavé), cuja aliança exigia um
+            rígido código de conduta moral.
+          </li>
+          <li>
+            <strong>Bíblia Hebraica:</strong> O Antigo Testamento, que serviu
+            como pilar fundacional básico para as três principais religiões
+            abraâmicas mundiais: o Judaísmo, o Cristianismo e o Alcorão
+            Islâmico.
+          </li>
+        </ul>
+
+        <blockquote>
+          “Os hebreus deram ao mundo não apenas uma fé, mas uma consciência
+          moral universal.”
+          <br /><strong style="font-size: 0.85rem"
+            >— Paul Johnson (Teólogo)</strong
+          >
+        </blockquote>
+
+        <h3>6. O Egito Antigo – o “Presente do Nilo”</h3>
+        <p>
+          <strong>Localização:</strong> Nordeste da África, cercado por
+          desertos, mas fertilizado pelas cheias anuais e regulares do Rio Nilo,
+          que viabilizava a agricultura, o transporte interno de mercadorias e a
+          coesão territorial.
+        </p>
+
+        <h4 style="color: #5c4033; margin-top: 15px">Estrutura e Legado:</h4>
+        <ul class="lista-comum">
+          <li>
+            <strong>Faraó Teocrático:</strong> O monarca supremo centralizava a
+            política e a economia, sendo venerado diretamente como uma
+            encarnação viva do deus Sol (Rá).
+          </li>
+          <li>
+            <strong>Cultura do Além-Túmulo:</strong> Religião politeísta focada
+            na imortalidade da alma, gerando o avanço das técnicas complexas de
+            mumificação e a edificação das colossais pirâmides de pedra como
+            monumentos funerários.
+          </li>
+          <li>
+            <strong>Escrita Hieroglífica:</strong> Caracteres sagrados usados em
+            documentos oficiais, monumentos públicos e papiros.
+          </li>
+        </ul>
+
+        <blockquote>
+          “O Egito é um presente do Nilo.”
+          <br /><strong style="font-size: 0.85rem"
+            >— Heródoto (Historiador grego, séc. V a.C.)</strong
+          >
+        </blockquote>
+
+        <h3>7. Os Persas – o império tolerante</h3>
+        <p>
+          <strong>Localização:</strong> Planalto do atual Irã. Construíram um
+          império territorial gigantesco integrando o Oriente Médio no século VI
+          a.C. sob o comando de imperadores como Ciro, o Grande, Dario I e
+          Xerxes.
+        </p>
+
+        <h4 style="color: #5c4033; margin-top: 15px">
+          Estrutura Administrativa:
+        </h4>
+        <ul class="lista-comum">
+          <li>
+            <strong>Satrapias:</strong> Divisão em províncias administrativas
+            coordenadas por governadores de confiança ("sátrapas"),
+            inspecionados de perto pelos "olhos e ouvidos do rei".
+          </li>
+          <li>
+            <strong>Logística Eficiente:</strong> Criação de uma ampla rede de
+            estradas reais pavimentadas e um sistema de correio postal altamente
+            ágil para a época.
+          </li>
+          <li>
+            <strong>Zoroastrismo:</strong> Religião dualista fundada pelo
+            profeta Zaratustra, pregando o conflito cosmológico eterno entre o
+            Bem (Ahura-Mazda/Ormuzd) e o Mal (Angra-Mainyu/Arimã).
+          </li>
+          <li>
+            <strong>Tolerância cultural:</strong> Ao contrário de outros
+            impérios, os persas respeitavam os costumes locais e as religiões
+            dos povos vencidos, exigindo em troca apenas o pagamento regular de
+            impostos.
+          </li>
+        </ul>
+
+        <h3>Resumo Comparativo das Civilizações</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Civilização</th>
+              <th>Localização Central</th>
+              <th>Contribuições Principais</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Mesopotâmia</strong></td>
+              <td>Rios Tigre e Eufrates</td>
+              <td>Escrita cuneiforme, Código de Hamurábi, Zigurates.</td>
+            </tr>
+            <tr>
+              <td><strong>Egito</strong></td>
+              <td>Margens do Rio Nilo</td>
+              <td>Faraó teocrático, pirâmides, mumificação, hieróglifos.</td>
+            </tr>
+            <tr>
+              <td><strong>Fenícia</strong></td>
+              <td>Litoral do Líbano moderno</td>
+              <td>
+                Navegação de longo curso, comércio, alfabeto fonético de 22
+                letras.
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Hebreus</strong></td>
+              <td>Vale da Palestina</td>
+              <td>Monoteísmo ético puro, compilação da Bíblia Hebraica.</td>
+            </tr>
+            <tr>
+              <td><strong>Persas</strong></td>
+              <td>Planalto do Irã</td>
+              <td>Império unificado por estradas, Satrapias, Zoroastrismo.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="exercicios">
+          <h3>Atividade de Fixação (ENEM / Vestibular)</h3>
+
+          <div class="questao">
+            <p>
+              <strong>1. (ENEM – adaptada)</strong> O Código de Hamurábi, um dos
+              primeiros conjuntos de leis escritas, tinha como principal função:
+            </p>
+            <ul class="alternativas">
+              <li>a) estabelecer igualdade social entre todos.</li>
+              <li>
+                b) garantir a liberdade de culto religioso aos escravizados.
+              </li>
+              <li>
+                c) manter a ordem e a justiça social segundo o princípio rígido
+                da retribuição equivalente.
+              </li>
+              <li>
+                d) permitir a participação popular direta nas decisões políticas
+                coletivas.
+              </li>
+            </ul>
+          </div>
+
+          <div class="questao">
+            <p>
+              <strong>2. (UERJ – adaptada)</strong> O Rio Nilo foi essencial
+              para a estruturação da civilização egípcia antiga porque:
+            </p>
+            <ul class="alternativas">
+              <li>
+                a) impedia a comunicação militar e o comércio entre as
+                províncias.
+              </li>
+              <li>
+                b) dificultava e inviabilizava a irrigação agrícola em larga
+                escala.
+              </li>
+              <li>
+                c) permitia o transporte de cargas, a irrigação e garantia a
+                fertilidade sazonal do solo cultivável.
+              </li>
+              <li>
+                d) tornava as fronteiras do Egito vulneráveis e totalmente
+                dependentes de invasões estrangeiras.
+              </li>
+            </ul>
+          </div>
+
+          <div class="questao">
+            <p><strong>3. Questão dissertativa:</strong></p>
+            <p>
+              Compare as civilizações hebraica e egípcia em relação à estrutura
+              religiosa e à legitimação da organização política de seus
+              governantes.
+            </p>
+          </div>
+
+          <details>
+            <summary>Clique aqui para ver o Gabarito</summary>
+            <p>
+              <strong>1. Resposta: C</strong> - manter a ordem e a justiça
+              social segundo o princípio rígido da retribuição equivalente.
+            </p>
+            <p>
+              <strong>2. Resposta: C</strong> - permitia o transporte de cargas,
+              a irrigação e garantia a fertilidade sazonal do solo cultivável.
+            </p>
+            <p>
+              <strong>3. Resposta sugerida:</strong> O aluno deve apontar que os
+              egípcios estruturavam-se em um modelo politeístas com um Estado
+              teocrático centralizado na figura do Faraó (visto como um deus
+              vivo). Em contrapartida, os hebreus desenvolveram um monoteísmo
+              ético exclusivo centrado em Yavé, onde seus líderes políticos
+              (juízes, reis e profetas) não eram considerados deuses, mas sim
+              subalternos escolhidos para cumprir as leis e os desígnios da
+              vontade divina.
+            </p>
+          </details>
+        </div>
+      </div>
+
+      <div class="btn-container">
+        <button class="btn btn-secundario" onclick="mudarPagina('aula3')">
+          &larr; Voltar para (Aula 3)
+        </button>
+        <button class="btn btn-secundario" onclick="mudarPagina('sumario')">
+          Sumário
+        </button>
+        <button class="btn" onclick="mudarPagina('aula5')">
+          Ir para a Aula 5 &rarr;
+        </button>
+      </div>
+    </div>
+
+    <!-- 7. AULA 5 -->
+    <div id="aula5" class="page">
+      <div class="conteudo-livro">
+        <h2>AULA 5 – A GRÉCIA ANTIGA: CIDADES-ESTADO, DEMOCRACIA E CULTURA</h2>
+
+        <div class="objetivos">
+          <strong>Objetivos da Aula:</strong>
+          <ul>
+            <li>
+              Compreender a formação da civilização grega e sua organização
+              política.
+            </li>
+            <li>
+              Analisar o papel de Atenas e Esparta como modelos distintos de
+              cidade-Estado.
+            </li>
+            <li>
+              Reconhecer as principais contribuições culturais, filosóficas e
+              artísticas da Grécia Antiga.
+            </li>
+            <li>
+              Relacionar o legado grego com o mundo contemporâneo (política,
+              arte, ciência e filosofia).
+            </li>
+          </ul>
+        </div>
+
+        <h3>1. O nascimento da civilização grega</h3>
+        <p>
+          A civilização grega desenvolveu-se entre 3.000 a.C. e 146 a.C., na
+          península balcânica, nas ilhas do mar Egeu e nas costas da Ásia Menor
+          (atual Turquia).
+        </p>
+        <p>
+          O relevo montanhoso e o mar influenciaram diretamente o modo de vida
+          grego, estimulando a fragmentação em cidades independentes (as pólis)
+          e o desenvolvimento de um comércio marítimo intenso.
+        </p>
+        <p>
+          A Grécia não era um império territorial unificado como o Egito ou a
+          Pérsia, mas sim um conjunto de pólis autônomas que compartilhavam a
+          mesma língua e religião, mantendo governos, leis e costumes próprios.
+        </p>
+        <blockquote>
+          “A civilização grega nasceu entre o mar e a montanha.”
+          <br /><strong style="font-size: 0.85rem"
+            >— Jean-Pierre Vernant (Historiador)</strong
+          >
+        </blockquote>
+
+        <h3>2. As Pólis Gregas</h3>
+        <p>
+          A pólis (cidade-Estado) era o núcleo central da vida política, social
+          e religiosa do cidadão grego. Estruturalmente, cada uma possuía:
+        </p>
+        <ul class="lista-comum">
+          <li>
+            <strong>Acrópole:</strong> A parte mais alta e fortificada da
+            cidade, onde ficavam os templos religiosos primordiais e as defesas
+            militares.
+          </li>
+          <li>
+            <strong>Ágora:</strong> A grande praça pública central que
+            funcionava como mercado urbano e espaço para debates políticos
+            cotidianos.
+          </li>
+          <li>
+            <strong>Cinturão agrícola:</strong> Áreas rurais ao redor da pólis
+            destinadas à produção interna de alimentos.
+          </li>
+        </ul>
+        <p>Exemplos notáveis de pólis:</p>
+        <ul class="lista-comum">
+          <li>
+            <strong>Atenas:</strong> Centrada na democracia nascente, na
+            produção cultural refinada e no nascimento da filosofia
+            racionalista.
+          </li>
+          <li>
+            <strong>Esparta:</strong> Focada estritamente no militarismo
+            rigoroso, na ordem aristocrática e na rígida disciplina física.
+          </li>
+        </ul>
+
+        <h3>3. Esparta – a cidade dos guerreiros</h3>
+        <p>
+          <strong>Localização:</strong> Região fértil da Lacônia, situada ao sul
+          da península do Peloponeso. Fundada originalmente pelos invasores
+          dórios, Esparta estruturou-se como uma sociedade profundamente
+          militarizada e oligárquica.
+        </p>
+
+        <h4 style="color: #5c4033; margin-top: 15px">Organização Política:</h4>
+        <ul class="lista-comum">
+          <li>
+            <strong>Diarquia:</strong> Comando de dois reis com funções
+            cerimoniais, religiosas e militares de campanha.
+          </li>
+          <li>
+            <strong>Gerúsia:</strong> Conselho deliberativo de anciãos (composto
+            por espartanos com mais de 60 anos) responsável por formular as
+            leis.
+          </li>
+          <li>
+            <strong>Apela:</strong> Assembleia popular de guerreiros que votava
+            as propostas da Gerúsia, mas sem direito a debate real.
+          </li>
+          <li>
+            <strong>Éforos:</strong> Conselho de cinco magistrados eleitos
+            anualmente que fiscalizava a conduta dos reis e controlava a ordem
+            pública.
+          </li>
+        </ul>
+
+        <h4 style="color: #5c4033; margin-top: 15px">Estrutura Social:</h4>
+        <table>
+          <thead>
+            <tr>
+              <th>Classe</th>
+              <th>Função e Condição Social</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Espartiatas</strong></td>
+              <td>
+                Aristocratas guerreiros proprietários de terras. Os únicos com
+                direitos políticos plenos.
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Periecos</strong></td>
+              <td>
+                Homens livres de periferia que exerciam o comércio local e o
+                artesanato, sem direitos políticos.
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Hilotas</strong></td>
+              <td>
+                Servos de propriedade pública estatal. Cultivavam a terra para
+                sustentar a elite e eram vigiados por violência constante.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          A educação espartana era controlada pelo Estado desde a infância,
+          focada na obediência cega e na resistência física. As mulheres gozavam
+          de maior autonomia econômica e liberdade de locomoção se comparadas a
+          Atenas, devendo passar por treinos atléticos para gerar guerreiros
+          saudáveis.
+        </p>
+        <blockquote>
+          “Esparta não ensinava a viver, ensinava a lutar.”
+          <br /><strong style="font-size: 0.85rem"
+            >— Plutarco (Historiador e biógrafo)</strong
+          >
+        </blockquote>
+
+        <h3>4. Atenas – o berço da democracia</h3>
+        <p>
+          <strong>Localização:</strong> Península da Ática. Fundada pelos
+          jônios, Atenas destacou-se pela intensa atividade mercantil marítima,
+          efervescência intelectual e artística.
+        </p>
+
+        <h4 style="color: #5c4033; margin-top: 15px">
+          Evolução Política de Atenas:
+        </h4>
+        <table>
+          <thead>
+            <tr>
+              <th>Etapa Política</th>
+              <th>Regime Político</th>
+              <th>Características de Destaque</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Monarquia</strong></td>
+              <td>Governo de um Rei (Basileu)</td>
+              <td>
+                Poder centralizado nas funções religiosas e militares arcaicas.
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Oligarquia</strong></td>
+              <td>Domínio dos Eupátridas</td>
+              <td>
+                Monopólio das decisões políticas restrito aos nobres
+                proprietários de terras.
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Tirania</strong></td>
+              <td>Governo por força popular</td>
+              <td>
+                Líderes isolados (como Pisístrato) que implementaram reformas
+                sociais de impacto.
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Democracia</strong></td>
+              <td>Governo dos cidadãos</td>
+              <td>
+                Instituída pelas reformas estruturais de Clístenes e consolidada
+                por Péricles.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h4 style="color: #5c4033; margin-top: 15px">Reformas Fundamentais:</h4>
+        <ul class="lista-comum">
+          <li>
+            <strong>Sólon (594 a.C.):</strong> Aboliu a escravidão motivada por
+            dívidas financeiras e dividiu a participação política com base na
+            riqueza, diminuindo o privilégio de sangue.
+          </li>
+          <li>
+            <strong>Clístenes (508 a.C.):</strong> Reorganizou a população
+            urbana em unidades regionais chamadas <em>demos</em>, garantindo
+            igualdade jurídica (isonomia) a todos os cidadãos livres, fundando a
+            Democracia.
+          </li>
+          <li>
+            <strong>Péricles (séc. V a.C.):</strong> Criou a mistoforia
+            (remuneração financeira para cargos públicos), viabilizando que
+            cidadãos pobres pudessem largar o trabalho para atuar na política.
+            Presidiu a "Idade de Ouro" ateniense.
+          </li>
+        </ul>
+        <p>
+          <strong>A Democracia Ateniense:</strong> Tratava-se de uma democracia
+          direta. Os cidadãos adultos (homens livres, de pais atenienses e
+          maiores de idade) deliberavam e votavam as leis diretamente na praça
+          pública. Contudo, excluía a esmagadora maioria da população regional:
+          mulheres, metecos (estrangeiros livres) e a massa de trabalhadores
+          escravizados.
+        </p>
+        <blockquote>
+          “O nosso governo não copia as leis dos vizinhos. Chama-se democracia
+          porque não é administrado para poucos, mas em favor da maioria.”
+          <br /><strong style="font-size: 0.85rem"
+            >— Péricles (Oração aos Atenienses, segundo Tucídides)</strong
+          >
+        </blockquote>
+
+        <h3>5. As Guerras e o declínio grego</h3>
+        <p>
+          <strong>Guerras Médicas (490–479 a.C.):</strong> Conflito militar
+          unificado das pólis gregas contra o avanço expansionista do Império
+          Persa. A vitória grega conferiu a Atenas a liderança hegemônica sobre
+          o Mar Egeu através da Confederação de Delos.
+        </p>
+        <p>
+          <strong>Guerra do Peloponeso (431–404 a.C.):</strong> Guerra civil
+          destrutiva entre o bloco liderado por Atenas (Liga de Delos) e a
+          aliança oligárquica comandada por Esparta (Liga do Peloponeso). A
+          vitória militar de Esparta resultou no colapso econômico e no
+          enfraquecimento político geral da Grécia, facilitando a posterior
+          conquista macedônica liderada por Filipe II.
+        </p>
+
+        <h3>6. Alexandre, o Grande – o Império Helenístico</h3>
+        <p>
+          No século IV a.C., Alexandre III da Macedônia assumiu o trono e
+          expandiu seus territórios de forma fulminante, anexando o Egito, a
+          Mesopotâmia e avançando com as tropas até as fronteiras da Índia.
+        </p>
+        <p>
+          Com a dissolução precoce do império após a sua morte, consolidou-se o
+          chamado <strong>Período Helenístico</strong>, que se caracterizou pela
+          fusão e intercâmbio cultural direto entre o racionalismo clássico
+          grego e as ricas tradições religiosas e artísticas das civilizações
+          orientais.
+        </p>
+        <blockquote>
+          “Alexandre fundiu o Ocidente e o Oriente, difundindo o espírito grego
+          por terras asiáticas.”
+          <br /><strong style="font-size: 0.85rem"
+            >— Arnold Toynbee (Historiador)</strong
+          >
+        </blockquote>
+
+        <h3>7. Cultura e Filosofia Grega</h3>
+        <p>
+          A produção artística e intelectual da Grécia antiga pautava-se pela
+          busca constante da simetria, do antropocentrismo, do equilíbrio
+          estético e do rigor analítico da razão humana.
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>Área Cultural</th>
+              <th>Principais Contribuições e Autores</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Filosofia</strong></td>
+              <td>
+                Desenvolvimento do pensamento crítico-racional com Sócrates
+                (ética e dialética), Platão (Teoria das Ideias) e Aristóteles
+                (sistemas de lógica, biologia e política).
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Arte e Arquitetura</strong></td>
+              <td>
+                Construção de grandes templos matematicamente proporcionais
+                (Partenon) e esculturas de forte realismo anatômico.
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Teatro</strong></td>
+              <td>
+                Criação dos gêneros da Tragédia (explorando o destino com
+                Sófocles e Eurípedes) e da Comédia (crítica política com
+                Aristófanes).
+              </td>
+            </tr>
+            <tr>
+              <td><strong>História</strong></td>
+              <td>
+                Fundação dos métodos de registro documental com Heródoto
+                (guerras médicas) e o pioneirismo da análise crítica e imparcial
+                com Tucídides.
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Ciência e Matemática</strong></td>
+              <td>
+                Avanços universais de geometria e teoremas abstratos formulados
+                por Pitágoras, Arquimedes e Hipócrates (medicina empírica).
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Resumo Comparativo das Pólis Principais</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Eixo de Análise</th>
+              <th>Esparta</th>
+              <th>Atenas</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Regime Político</strong></td>
+              <td>Oligarquia aristocrática e militar.</td>
+              <td>Democracia direta e participativa.</td>
+            </tr>
+            <tr>
+              <td><strong>Base Econômica</strong></td>
+              <td>Agricultura agrária interna e saques militares.</td>
+              <td>Comércio marítimo ultramarino e artesanato urbano.</td>
+            </tr>
+            <tr>
+              <td><strong>Foco Educacional</strong></td>
+              <td>Formação física militarista (Agogê) e obediência.</td>
+              <td>Desenvolvimento intelectual, artístico e retórica.</td>
+            </tr>
+            <tr>
+              <td><strong>Mobilidade Social</strong></td>
+              <td>Sociedade estática, rígida e censitária.</td>
+              <td>Dinâmica para cidadãos, excludente para minorias.</td>
+            </tr>
+            <tr>
+              <td><strong>Principal Valor</strong></td>
+              <td>Sacrifício coletivo e estabilidade.</td>
+              <td>Liberdade de debate e autonomia individual.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="exercicios">
+          <h3>Atividade de Fixação (ENEM / Vestibular)</h3>
+
+          <div class="questao">
+            <p>
+              <strong>1. (ENEM – adaptada)</strong> A democracia desenvolvida na
+              pólis de Atenas distinguia-se estruturalmente dos modelos
+              democráticos contemporâneos do Ocidente porque:
+            </p>
+            <ul class="alternativas">
+              <li>
+                a) estendia o direito de voto de maneira irrestrita às mulheres
+                e estrangeiros livres.
+              </li>
+              <li>
+                b) estruturava-se em um modelo representativo, baseado em
+                eleições de partidos políticos.
+              </li>
+              <li>
+                c) restringia rigidamente o estatuto de cidadania a uma minoria
+                masculina de homens livres.
+              </li>
+              <li>
+                d) funcionava sob a liderança de tiranos hereditários com amplo
+                respaldo econômico popular.
+              </li>
+            </ul>
+          </div>
+
+          <div class="questao">
+            <p>
+              <strong>2. (FUVEST – adaptada)</strong> Na estrutura de
+              organização social da pólis de Esparta, a função específica
+              atribuída à massa de hilotas consistia em:
+            </p>
+            <ul class="alternativas">
+              <li>
+                a) conduzir as frotas de comércio marítimo de longa distância.
+              </li>
+              <li>
+                b) administrar os cultos e rituais religiosos nos templos da
+                acrópole.
+              </li>
+              <li>
+                c) trabalhar compulsoriamente na terra para sustentar
+                economicamente a elite guerreira.
+              </li>
+              <li>
+                d) compor as fileiras de debate e votação na assembleia popular
+                da Apela.
+              </li>
+            </ul>
+          </div>
+
+          <div class="questao">
+            <p><strong>3. Questão dissertativa:</strong></p>
+            <p>
+              Explique por que a cidade de Atenas clássica é considerada o
+              “berço da democracia” e aponte duas exclusões ou limitações
+              sociais crônicas que caracterizavam esse regime político na
+              Antiguidade.
+            </p>
+          </div>
+
+          <details>
+            <summary>Clique aqui para ver o Gabarito</summary>
+            <p>
+              <strong>1. Resposta: C</strong> - restringia rigidamente o
+              estatuto de cidadania a uma minoria masculina de homens livres.
+            </p>
+            <p>
+              <strong>2. Resposta: C</strong> - trabalhar compulsoriamente na
+              terra para sustentar economicamente a elite guerreira.
+            </p>
+            <p>
+              <strong>3. Resposta sugerida:</strong> Atenas é chamada de “berço
+              da democracia” por ter inaugurado pioneiramente o conceito de
+              cidadania activa e governabilidade direta por meio do debate dos
+              cidadãos na Ágora, sem representantes. Contudo, suas duas maiores
+              limitações eram a exclusão política total das mulheres, escravos e
+              estrangeiros (metecos), bem como a profunda dependência do sistema
+              econômico escravista, que garantia o ócio necessário para os
+              cidadãos se dedicarem aos negócios da pólis.
+            </p>
+          </details>
+        </div>
+      </div>
+
+      <div class="btn-container">
+        <button class="btn btn-secundario" onclick="mudarPagina('aula4')">
+          &larr; Voltar ( Aula 4)
+        </button>
+        <button class="btn btn-secundario" onclick="mudarPagina('sumario')">
+          Sumário
+        </button>
+        <button class="btn" onclick="mudarPagina('aula6')">
+          Ir para a Aula 6 &rarr;
+        </button>
+      </div>
+    </div>
+
+    <!-- 8. AULA 6 -->
+    <div id="aula6" class="page">
+      <div class="conteudo-livro">
+        <h2>
+          AULA 6 – ROMA ANTIGA: MONARQUIA, REPÚBLICA, IMPÉRIO E O LEGADO ROMANO
+        </h2>
+
+        <div class="objetivos">
+          <strong>Objetivos da Aula:</strong>
+          <ul>
+            <li>
+              Compreender o processo histórico da formação, expansão e queda de
+              Roma.
+            </li>
+            <li>
+              Analisar as principais transformações políticas: Monarquia &rarr;
+              República &rarr; Império.
+            </li>
+            <li>
+              Entender o papel da escravidão, das lutas sociais e da cultura
+              romana.
+            </li>
+            <li>
+              Avaliar o legado político, jurídico e cultural de Roma para o
+              mundo ocidental.
+            </li>
+          </ul>
+        </div>
+
+        <h3>1. A origem de Roma</h3>
+        <p>
+          <strong>Localização:</strong> Península Itálica, às margens do rio
+          Tibre — posição estratégica entre o mar Mediterrâneo e o interior
+          europeu.
+        </p>
+        <p>
+          Segundo a lenda, Roma foi fundada em 753 a.C. pelos irmãos Rômulo e
+          Remo, filhos do deus Marte e da vestal Reia Sílvia, que teriam sido
+          amamentados e criados por uma loba.
+        </p>
+        <p>
+          Historicamente, contudo, a cidade surgiu da união de povos itálicos
+          (latinos, sabinos e etruscos), que se organizaram em pequenas aldeias
+          fortificadas no monte Palatino.
+        </p>
+        <blockquote>
+          “Roma nasceu da mistura e do conflito, mas também da genialidade de
+          unir.”
+          <br /><strong style="font-size: 0.85rem"
+            >— Paul Veyne (Historiador)</strong
+          >
+        </blockquote>
+
+        <h3>2. A Monarquia Romana (753–509 a.C.)</h3>
+        <p>
+          Durante o período inicial, Roma foi governada por reis. A monarquia
+          foi dominada principalmente por governantes etruscos, que promoveram
+          grandes obras públicas urbanas, mas concentraram o poder de forma
+          autoritária.
+        </p>
+
+        <h4 style="color: #5c4033; margin-top: 15px">
+          Organização política arcaica:
+        </h4>
+        <ul class="lista-comum">
+          <li>
+            <strong>Rei:</strong> Detinha os poderes militar, político e
+            religioso supremo.
+          </li>
+          <li>
+            <strong>Senado:</strong> Conselho consultivo de anciãos formado
+            exclusivamente por patrícios (os nobres de sangue).
+          </li>
+          <li>
+            <strong>Assembleia:</strong> Composta por cidadãos comuns, com pouca
+            influência real nas decisões.
+          </li>
+        </ul>
+
+        <h4 style="color: #5c4033; margin-top: 15px">
+          Estrutura da Sociedade Monárquica:
+        </h4>
+        <table>
+          <thead>
+            <tr>
+              <th>Grupo Social</th>
+              <th>Características Principais</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Patrícios</strong></td>
+              <td>
+                Grandes proprietários de terras que compunham a aristocracia e
+                detinham a elite política.
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Plebeus</strong></td>
+              <td>
+                Pequenos agricultores, artesãos e comerciantes livres. Maioria
+                da população, sem direitos políticos.
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Clientes</strong></td>
+              <td>
+                Indivíduos livres que viviam sob a dependência econômica e
+                proteção jurídica de um patrício.
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Escravos</strong></td>
+              <td>
+                Prisioneiros de guerra ou plebeus endividados. Eram vistos
+                legalmente como mercadorias.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          Em 509 a.C., insatisfeitos com o autoritarismo, os patrícios lideraram
+          uma revolta que derrubou o último rei etrusco, Tarquínio, o Soberbo,
+          instaurando a República.
+        </p>
+
+        <h3>3. A República Romana (509–27 a.C.)</h3>
+        <p>
+          A República estruturou-se sob a premissa de que o poder pertencia ao
+          interesse público comum (<em>res publica</em>). Na prática, porém, o
+          regime era controlado rigidamente pela aristocracia patrícia.
+        </p>
+
+        <h4 style="color: #5c4033; margin-top: 15px">
+          Estrutura Política Republicana:
+        </h4>
+        <table>
+          <thead>
+            <tr>
+              <th>Instituição</th>
+              <th>Função e Composição</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Cônsules</strong></td>
+              <td>
+                2 magistrados eleitos anualmente, chefes supremos do governo
+                administrativo e do exército.
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Senado</strong></td>
+              <td>
+                O órgão mais poderoso da República. Controlado pelos patrícios,
+                geria as finanças e a política externa.
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Assembleias</strong></td>
+              <td>
+                Reuniões de cidadãos que votavam as leis apresentadas e elegiam
+                os magistrados.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h4 style="color: #5c4033; margin-top: 15px">
+          As Lutas Sociais e Conquistas da Plebe:
+        </h4>
+        <p>
+          Como os plebeus compunham a base do exército romano, eles passaram a
+          organizar revoltas e greves militares exigindo direitos políticos e
+          sociais. Após séculos de conflitos, conquistaram garantias
+          fundamentais:
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>Conquista Histórica</th>
+              <th>Descrição do Direito Adquirido</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Tribunado da Plebe (494 a.C.)</strong></td>
+              <td>
+                Criação de magistrados plebeus com poder de vetar leis que
+                fossem injustas para a classe.
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Lei das Doze Tábuas (450 a.C.)</strong></td>
+              <td>
+                A primeira codificação escrita das leis romanas, impedindo as
+                interpretações arbitrárias dos patrícios.
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Leis Licínias e Canuleia</strong></td>
+              <td>
+                Permissão para o casamento entre patrícios e plebeus e fim da
+                escravidão por dívidas.
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Lei Hortênsia (287 a.C.)</strong></td>
+              <td>
+                Determinou que as decisões dos plebiscitos (plebe) teriam força
+                de lei válida para toda a sociedade.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          Apesar de a República ter se tornado juridicamente mais inclusiva, ela
+          continuou socialmente desigual, e a expansão militar consolidou a
+          escravidão como motor central da economia.
+        </p>
+
+        <h3>4. Expansão e crise da República</h3>
+        <p>
+          Roma iniciou um processo avassalador de expansão militar por toda a
+          bacia do Mar Mediterrâneo, subjugando reinos e transformando as
+          populações capturadas em massa escrava.
+        </p>
+        <ul class="lista-comum">
+          <li>
+            <strong>Guerras Púnicas (264–146 a.C.):</strong> Longo conflito
+            militar contra Cartago (potência comercial do Norte da África). A
+            vitória romana garantiu a destruição de Cartago e o controle
+            absoluto das rotas mercantis do Mediterrâneo, que passou a ser
+            chamado pelos romanos de <em>Mare Nostrum</em> ("Nosso Mar").
+          </li>
+          <li>
+            <strong>Outras Conquistas:</strong> Anexação dos territórios da
+            Grécia, Egito, Síria e Gália.
+          </li>
+        </ul>
+        <p>
+          Essa expansão trouxe imensas riquezas para a elite patrícia e para os
+          generais. Contudo, gerou uma crise social: a introdução massiva de
+          escravos arruinou os pequenos camponeses livres, que perderam suas
+          terras para os grandes latifúndios e migraram desempregados para as
+          cidades.
+        </p>
+
+        <h3>5. As guerras civis e o fim da República</h3>
+        <p>
+          A desigualdade social extrema e a disputa pelo poder político geraram
+          um século de violentas crises internas e guerras civis:
+        </p>
+        <ul class="lista-comum">
+          <li>
+            <strong>Os Irmãos Graco:</strong> Tibério e Caio Graco, tribunos da
+            plebe, propuseram leis de reforma agrária e distribuição de trigo
+            barato para os pobres. Ambos foram assassinados pela oposição
+            senatorial aristocrática.
+          </li>
+          <li>
+            <strong>Profissionalização do Exército:</strong> Generais populares
+            como Mário e Sila usaram suas tropas fiéis para disputar o poder
+            civil em Roma.
+          </li>
+          <li>
+            <strong>Primeiro Triunvirato (60 a.C.):</strong> Aliança política
+            informal entre Júlio César, Pompeu e Crasso. César conquistou a
+            Gália, marchou sobre Roma e, após vencer uma guerra civil,
+            declarou-se ditador vitalício. Acabou assassinado em 44 a.C. por
+            senadores que temiam a volta da monarquia.
+          </li>
+          <li>
+            <strong>Segundo Triunvirato:</strong> Aliança entre Marco Antônio,
+            Otávio e Lépido. Após nova disputa interna, Otávio derrotou Marco
+            Antônio e Cleópatra no Egito, concentrando todos os poderes. Em 27
+            a.C., recebeu o título de Augusto, tornando-se o primeiro Imperador
+            romano.
+          </li>
+        </ul>
+        <blockquote>
+          “Roma passou do governo dos cidadãos ao governo de um só homem.”
+          <br /><strong style="font-size: 0.85rem"
+            >— Edward Gibbon (Historiador)</strong
+          >
+        </blockquote>
+
+        <h3>6. O Império Romano (27 a.C.–476 d.C.)</h3>
+
+        <h3>O Principado (27 a.C.–284 d.C.)</h3>
+        <p>
+          Sob o governo de Augusto, Roma iniciou seu período de maior esplendor,
+          estabilidade e expansão territorial máxima, conhecido como a
+          <strong>Pax Romana</strong>.
+        </p>
+        <p>
+          As instituições tradicionais da República (como o Senado) continuaram
+          existindo formalmente, mas perderam o poder real, que passou a ser
+          centralizado na figura do Imperador.
+        </p>
+        <blockquote>
+          “Augusto recebeu uma Roma feita de tijolos e a deixou pavimentada de
+          mármore.”
+          <br /><strong style="font-size: 0.85rem"
+            >— Suetônio (Historiador romano)</strong
+          >
+        </blockquote>
+
+        <h4 style="color: #5c4033; margin-top: 15px">
+          Sociedade e Economia do Alto Império:
+        </h4>
+        <ul class="lista-comum">
+          <li>
+            <strong>Política do Pão e Circo:</strong> Distribuição gratuita de
+            trigo e realização de espetáculos públicos sangrentos (lutas de
+            gladiadores e corridas de bigas) para manter a massa urbana alienada
+            e evitar revoltas populares.
+          </li>
+          <li>
+            <strong>Infraestrutura Monumental:</strong> Construção de extensas
+            redes de estradas pavimentadas, aquedutos, termas públicas e
+            anfiteatros como o Coliseu.
+          </li>
+          <li>
+            <strong>Religião:</strong> Inicialmente politeísta, com o culto aos
+            deuses tradicionais e a imposição do culto cívico à divindade do
+            próprio Imperador.
+          </li>
+          <li>
+            <strong>O Cristianismo:</strong> Surgido na província da Judeia, o
+            cristianismo expandiu-se rapidamente pelas rotas do Império. Por
+            negarem o culto ao Imperador e aos deuses pagãos, os cristãos
+            sofreram violentas perseguições. Mais tarde, devido à sua força
+            popular, foi concedida a liberdade de culto pelo Édito de Milão
+            (Constantino, 313 d.C.) e a fé cristã tornou-se a religião oficial
+            do Estado pelo Édito de Tessalônica (Teodósio, 380 d.C.).
+          </li>
+        </ul>
+
+        <h3>O Baixo Império (284–476 d.C.) – O Declínio</h3>
+        <p>
+          A partir do século III d.C., o Império mergulhou em uma profunda crise
+          estrutural:
+        </p>
+        <ol class="lista-comum" style="margin-left: 25px">
+          <li>
+            <strong>Fim da Expansão:</strong> Sem novas conquistas territoriais,
+            a oferta de escravos caiu drasticamente, gerando crise na produção
+            agrícola e inflação.
+          </li>
+          <li>
+            <strong>Instabilidade Política:</strong> Disputas violentas pelo
+            trono e sucessivas revoltas militares enfraqueceram as fronteiras.
+          </li>
+          <li>
+            <strong>Invasões Bárbaras:</strong> Diversos povos germânicos
+            (vândalos, visigodos, ostrogodos) passaram a cruzar as fronteiras
+            romanas em busca de terras e saques.
+          </li>
+        </ol>
+        <p>
+          Para tentar conter o colapso, o imperador Diocleciano dividiu a
+          administração do território. Posteriormente, Constantino fundou uma
+          nova capital no Oriente, Constantinopla (330 d.C.). Em 395 d.C.,
+          Teodósio dividiu permanentemente o território em Império Romano do
+          Ocidente (capital em Roma/Milão) e Império Romano do Oriente (capital
+          em Constantinopla).
+        </p>
+        <p>
+          Em <strong>476 d.C.</strong>, o último imperador do Ocidente, Rômulo
+          Augústulo, foi deposto pelo líder germânico Odoacro. Este evento marca
+          o fim definitivo da Idade Antiga e o início da Idade Média.
+        </p>
+
+        <h3>7. O legado romano</h3>
+        <blockquote>
+          “Roma foi o grande laboratório da civilização ocidental.”
+          <br /><strong style="font-size: 0.85rem"
+            >— Fernand Braudel (Historiador)</strong
+          >
+        </blockquote>
+        <table>
+          <thead>
+            <tr>
+              <th>Área do Conhecimento</th>
+              <th>Legado para o Mundo Contemporâneo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Direito</strong></td>
+              <td>
+                O Direito Romano é a fundação jurídica da maior parte dos
+                códigos civis modernos do Ocidente.
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Política</strong></td>
+              <td>
+                A consolidação das ideias de República, o conceito de cidadania
+                ligada à lei e a divisão de cargos administrativos.
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Arquitetura e Engenharia</strong></td>
+              <td>
+                O uso do arco e da abóbada, estradas pavimentadas duradouras,
+                aquedutos para transporte de água e grandes arenas.
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Língua e Cultura</strong></td>
+              <td>
+                O idioma Latim espalhou-se e deu origem às línguas neolatinas
+                (português, francês, espanhol, italiano e romeno).
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Religião</strong></td>
+              <td>
+                A institucionalização e expansão mundial do Cristianismo a
+                partir da estrutura administrativa de Roma.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Resumo – Linha do Tempo de Roma Antiga</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Período Histórico</th>
+              <th>Características Principais</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Monarquia (753–509 a.C.)</strong></td>
+              <td>
+                Fase de formação, domínio político etrusco e monarca com poder
+                absoluto.
+              </td>
+            </tr>
+            <tr>
+              <td><strong>República (509–27 a.C.)</strong></td>
+              <td>
+                Expansão territorial, conquistas e lutas sociais da plebe,
+                Guerras Púnicas e crises civis.
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Império (27 a.C.–476 d.C.)</strong></td>
+              <td>
+                Centralização imperial, Pax Romana, difusão do cristianismo,
+                declínio econômico e invasões bárbaras.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="exercicios">
+          <h3>Atividade de Fixação (ENEM / Vestibular)</h3>
+
+          <div class="questao">
+            <p>
+              <strong>1. (ENEM – adaptada)</strong> A Lei das Doze Tábuas,
+              redigida no período republicano, representou um marco importante
+              na história social de Roma porque:
+            </p>
+            <ul class="alternativas">
+              <li>
+                a) reforçou o poder absoluto dos patrícios sobre a vida civil e
+                militar.
+              </li>
+              <li>
+                b) deu visibilidade pública às leis, garantindo maior igualdade
+                jurídica para os plebeus.
+              </li>
+              <li>
+                c) instituiu uma monarquia de caráter teocrático e hereditário.
+              </li>
+              <li>
+                d) proibiu definitivamente a participação dos plebeus nas
+                assembleias e na política.
+              </li>
+            </ul>
+          </div>
+
+          <div class="questao">
+            <p>
+              <strong>2. (PUC-SP)</strong> O período conhecido historicamente
+              como a “Pax Romana” corresponde:
+            </p>
+            <ul class="alternativas">
+              <li>
+                a) ao fim imediato da monarquia etrusca e início do
+                expansionismo republicano.
+              </li>
+              <li>
+                b) ao auge da paz, estabilidade de fronteiras e prosperidade sob
+                o governo imperial de Augusto.
+              </li>
+              <li>
+                c) ao longo período de guerras civis destrutivas comandadas por
+                Júlio César.
+              </li>
+              <li>
+                d) às invasões das tribos bárbaras que saquearam e destruíram a
+                cidade de Roma.
+              </li>
+            </ul>
+          </div>
+
+          <div class="questao">
+            <p><strong>3. Questão aberta / dissertativa:</strong></p>
+            <p>
+              Explique duas causas principais que desencadearam a crise
+              estrutural e a consequente queda do Império Romano do Ocidente no
+              século V d.C.
+            </p>
+          </div>
+
+          <details>
+            <summary>Clique aqui para ver o Gabarito</summary>
+            <p>
+              <strong>1. Resposta: B</strong> - deu visibilidade pública às
+              leis, garantindo maior igualdade jurídica para os plebeus.
+            </p>
+            <p>
+              <strong>2. Resposta: B</strong> - ao auge da paz, estabilidade de
+              fronteiras e prosperidade sob o governo imperial de Augusto.
+            </p>
+            <p>
+              <strong>3. Resposta sugerida:</strong> O aluno pode citar o fim
+              das guerras de conquista, que provocou a crise do sistema
+              escravista de produção e gerou forte retração econômica e
+              inflação; a instabilidade política interna decorrente das disputas
+              militares pelo cargo imperial; e a pressão contínua exercida pelas
+              invasões dos povos germânicos (bárbaros) sobre as fronteiras
+              enfraquecidas do exército romano.
+            </p>
+          </details>
+        </div>
+      </div>
+      <div class="btn-container flex justify-between mt-10">
+        <button
+          class="btn bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded"
+          onclick="mudarPagina('aula5')"
+        >
+          &larr; Voltar (Aula 5)
+        </button>
+        <button
+          class="btn bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded"
+          onclick="mudarPagina('aula7')"
+        >
+          Ir para a Aula 7 &rarr;
+        </button>
+      </div>
+    </div>
+
+    <!-- JavaScript para alternar as páginas -->
+    <script { data-json="user_data" }>
+      function mudarPagina(idPagina) {
+        const paginas = document.querySelectorAll(".page");
+        paginas.forEach((pag) => pag.classList.remove("active"));
+
+        const proximaPagina = document.getElementById(idPagina);
+        if (proximaPagina) {
+          proximaPagina.classList.add("active");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        } else {
+          alert("Esta página ainda está sendo escrita!");
+        }
+      }
+    </script>
+    <!-- AULA 7 -->
+    <div id="aula7" class="page bg-white p-6 rounded-lg shadow-sm">
+      <div class="conteudo-livro">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">
+          AULA 7 – IDADE MÉDIA: FORMAÇÃO DO FEUDALISMO E A EUROPA MEDIEVAL
+        </h2>
+
+        <div
+          class="objetivos bg-gray-50 p-4 rounded-md border-l-4 border-blue-500 mb-6"
+        >
+          <strong class="text-gray-700">Objetivos da Aula:</strong>
+          <ul class="list-disc list-inside text-gray-600 mt-2 space-y-1">
+            <li>
+              Compreender o processo de transição do Império Romano para o mundo
+              medieval.
+            </li>
+            <li>
+              Identificar as bases do feudalismo e sua organização política,
+              econômica e social.
+            </li>
+            <li>
+              Analisar o papel da Igreja Católica na cultura e na mentalidade
+              medieval.
+            </li>
+            <li>
+              Discutir o legado cultural e político da Idade Média para a Europa
+              moderna.
+            </li>
+          </ul>
+        </div>
+
+        <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-2">
+          1. A transição: do Império Romano ao mundo feudal
+        </h3>
+        <p class="text-gray-700 mb-4">
+          A Idade Média inicia-se com a queda do Império Romano do Ocidente (476
+          d.C.) e termina com a tomada de Constantinopla pelos turcos (1453).
+          Esse período foi de transformações profundas, marcadas pela fusão das
+          tradições romana, cristã e germânica.
+        </p>
+
+        <blockquote
+          class="italic text-gray-600 border-l-4 border-gray-300 pl-4 py-2 mb-4"
+        >
+          “A Idade Média não foi uma ruptura, mas uma fusão de mundos.”
+          <br /><span class="text-sm font-bold">— Jacques Le Goff</span>
+        </blockquote>
+
+        <p class="font-semibold text-gray-800">Fatores da transição:</p>
+        <ul class="list-disc list-inside text-gray-700 mt-2 mb-6 space-y-1">
+          <li>
+            <strong>Crise do Império Romano:</strong> invasões bárbaras,
+            ruralização e desorganização do comércio.
+          </li>
+          <li>
+            <strong>Invasões germânicas:</strong> formação dos reinos bárbaros.
+          </li>
+          <li>
+            <strong>Cristianização da Europa:</strong> unificação cultural e
+            moral pelo cristianismo.
+          </li>
+          <li>
+            <strong>Surgimento da nobreza:</strong> consolidação dos vínculos de
+            vassalagem.
+          </li>
+        </ul>
+
+        <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-2">
+          2. A sociedade feudal
+        </h3>
+        <p class="text-gray-700 mb-4">
+          A sociedade medieval era hierárquica, agrária e estamental, ou seja,
+          as pessoas nasciam em uma posição social da qual dificilmente saíam.
+        </p>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm text-left border-collapse mb-4">
+            <thead class="bg-gray-100">
+              <tr>
+                <th class="p-3 border">Estamento</th>
+                <th class="p-3 border">Função</th>
+                <th class="p-3 border">Lema</th>
+              </tr>
+            </thead>
+            <tbody class="text-gray-700">
+              <tr>
+                <td class="p-3 border font-bold">Nobreza</td>
+                <td class="p-3 border">Protegia (guerra e segurança)</td>
+                <td class="p-3 border italic">"Combater"</td>
+              </tr>
+              <tr>
+                <td class="p-3 border font-bold">Clero</td>
+                <td class="p-3 border">Orava (vida religiosa e espiritual)</td>
+                <td class="p-3 border italic">"Orar"</td>
+              </tr>
+              <tr>
+                <td class="p-3 border font-bold">Servos</td>
+                <td class="p-3 border">Trabalhavam (agricultura e produção)</td>
+                <td class="p-3 border italic">"Trabalhar"</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="text-gray-700 italic mb-6">
+          "O camponês medieval devia mais a Deus e ao senhor do que a si mesmo."
+          – Marc Bloch
+        </p>
+
+        <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-2">
+          3. O feudo e a economia feudal
+        </h3>
+        <p class="text-gray-700 mb-2">
+          <strong>O feudo:</strong> Era a unidade básica da economia, uma
+          propriedade rural autossuficiente.
+        </p>
+        <ul class="list-disc list-inside text-gray-700 mb-4 ml-4">
+          <li><strong>Manso senhorial:</strong> terras do senhor feudal.</li>
+          <li>
+            <strong>Manso servil:</strong> terras trabalhadas pelos servos.
+          </li>
+          <li><strong>Terras comunais:</strong> pastos, bosques e moinhos.</li>
+        </ul>
+
+        <p class="text-gray-700 font-semibold mt-4">Economia e tributos:</p>
+        <ul class="list-disc list-inside text-gray-700 mb-6 ml-4">
+          <li>Rural e de subsistência, com baixo uso de moeda.</li>
+          <li>
+            <strong>Corveia:</strong> trabalho gratuito nas terras do senhor.
+          </li>
+          <li><strong>Talha:</strong> parte da colheita.</li>
+          <li><strong>Banalidades:</strong> taxas por usar moinho/forno.</li>
+        </ul>
+
+        <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-2">
+          4. O sistema de vassalagem
+        </h3>
+        <p class="text-gray-700 mb-2">
+          A vassalagem era um vínculo pessoal e político entre nobres: o
+          <strong>suserano</strong> concedia terras e proteção, e o
+          <strong>vassalo</strong> prestava fidelidade e auxílio militar.
+        </p>
+        <blockquote
+          class="italic text-gray-600 border-l-4 border-gray-300 pl-4 py-2 mb-6"
+        >
+          “O poder medieval era feito de laços, não de leis.” — Georges Duby
+        </blockquote>
+
+        <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-2">
+          5. A Igreja e o poder espiritual
+        </h3>
+        <p class="text-gray-700 mb-2">
+          Instituição mais poderosa da Idade Média, controlando a fé, o ensino e
+          a cultura.
+        </p>
+        <ul class="list-disc list-inside text-gray-700 mb-4 ml-4">
+          <li>
+            <strong>Organização:</strong> Papa (chefe máximo), Clero regular
+            (monges) e Clero secular (padres/bispos).
+          </li>
+          <li>
+            <strong>Funções:</strong> Controle da educação, cobrança do dízimo e
+            Inquisição.
+          </li>
+        </ul>
+
+        <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-2">
+          6. A crise do feudalismo
+        </h3>
+        <p class="text-gray-700 mb-2">
+          Entre os séculos XIV e XV, o feudalismo entrou em crise devido ao
+          renascimento comercial, Peste Negra, fome, guerras e o fortalecimento
+          das monarquias nacionais.
+        </p>
+
+        <div class="bg-gray-800 text-white p-4 rounded-lg mt-6 mb-8">
+          <h4 class="font-bold mb-2">Resumo – Estrutura do Feudalismo</h4>
+          <ul class="text-sm space-y-1">
+            <li>
+              <strong>Política:</strong> Descentralizada (poder dos senhores
+              locais)
+            </li>
+            <li><strong>Economia:</strong> Agrária e de subsistência</li>
+            <li><strong>Sociedade:</strong> Estamental e hierarquizada</li>
+            <li>
+              <strong>Religião:</strong> Igreja Católica como centro da vida
+            </li>
+            <li>
+              <strong>Cultura:</strong> Teocêntrica (Deus como centro do
+              universo)
+            </li>
+          </ul>
+        </div>
+
+        <div class="exercicios mt-8 border-t pt-6">
+          <h3 class="text-xl font-bold text-gray-800 mb-4">
+            Atividade de Fixação
+          </h3>
+          <div class="questao mb-4">
+            <p class="font-bold">
+              1. (ENEM – adaptada) A economia feudal era caracterizada
+              principalmente por:
+            </p>
+            <ul class="mt-2 text-gray-700 space-y-1">
+              <li>a) produção agrícola voltada para o mercado.</li>
+              <li>b) uso intenso de moedas e comércio marítimo.</li>
+              <li>c) autossuficiência e produção voltada ao consumo local.</li>
+              <li>d) escravidão como base do sistema produtivo.</li>
+            </ul>
+          </div>
+          <div class="questao mb-4">
+            <p class="font-bold">2. (Fuvest) Na sociedade feudal, o servo:</p>
+            <ul class="mt-2 text-gray-700 space-y-1">
+              <li>a) era proprietário das terras que cultivava.</li>
+              <li>b) tinha liberdade total de locomoção.</li>
+              <li>c) devia ao senhor parte do trabalho e da produção.</li>
+              <li>d) possuía direitos políticos.</li>
+            </ul>
+          </div>
+          <details class="mt-4 p-4 bg-gray-100 rounded-md cursor-pointer">
+            <summary class="font-bold text-blue-700">
+              Clique aqui para ver o Gabarito
+            </summary>
+            <p class="mt-2 text-gray-800"><strong>1. Resposta: C</strong></p>
+            <p><strong>2. Resposta: C</strong></p>
+            <p class="mt-2 text-sm italic">
+              3. (Questão aberta) A Igreja organizava a vida espiritual e moral,
+              controlava o ensino, a cultura e a política, sendo o principal elo
+              de unidade da Europa medieval.
+            </p>
+          </details>
+        </div>
+      </div>
+
+      <div class="btn-container flex justify-between mt-10">
+        <button
+          class="btn bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded"
+          onclick="mudarPagina('aula6')"
+        >
+          &larr; Voltar (Aula 6)
+        </button>
+        <button
+          class="btn bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded"
+          onclick="mudarPagina('aula8')"
+        >
+          Ir para a Aula 8 &rarr;
+        </button>
+      </div>
+    </div>
+
+    <div id="aula8" class="page bg-white p-6 rounded-lg shadow-sm">
+      <div class="conteudo-livro">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">
+          AULA 8 – AS CRUZADAS E O RENASCIMENTO COMERCIAL E URBANO
+        </h2>
+
+        <div
+          class="objetivos bg-gray-50 p-4 rounded-md border-l-4 border-blue-500 mb-6"
+        >
+          <strong class="text-gray-700">Objetivos da Aula:</strong>
+          <ul class="list-disc list-inside text-gray-600 mt-2 space-y-1">
+            <li>Compreender o contexto religioso e político das Cruzadas.</li>
+            <li>
+              Analisar as consequências econômicas e culturais para a Europa.
+            </li>
+            <li>
+              Identificar o papel do renascimento comercial e urbano no fim do
+              feudalismo.
+            </li>
+            <li>
+              Relacionar esses processos com o surgimento da burguesia e do
+              capitalismo.
+            </li>
+          </ul>
+        </div>
+
+        <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-2">
+          1. O contexto: a Europa feudal em transformação
+        </h3>
+        <p class="text-gray-700 mb-4">
+          Entre os séculos XI e XIII, a Europa começou a sair do isolamento
+          feudal. O crescimento populacional, o aumento da produção agrícola e a
+          ação da Igreja criaram as condições para uma nova fase de expansão.
+        </p>
+
+        <blockquote
+          class="italic text-gray-600 border-l-4 border-gray-300 pl-4 py-2 mb-6"
+        >
+          “As Cruzadas foram o primeiro grande movimento coletivo do Ocidente
+          desde a queda de Roma.”
+          <br /><span class="text-sm font-bold">— Jacques Le Goff</span>
+        </blockquote>
+
+        <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-2">
+          2. As Cruzadas: guerras santas da cristandade
+        </h3>
+        <p class="text-gray-700 mb-4">
+          Expedições militares organizadas pela Igreja e reinos cristãos entre
+          os séculos XI e XIII para reconquistar Jerusalém e os lugares sagrados
+          sob domínio muçulmano.
+        </p>
+
+        <p class="font-semibold text-gray-800">Principais Motivações:</p>
+        <ul
+          class="list-disc list-inside text-gray-700 mt-2 mb-6 ml-4 space-y-1"
+        >
+          <li>
+            <strong>Religiosas:</strong> Libertar a Terra Santa e conquistar a
+            salvação.
+          </li>
+          <li>
+            <strong>Econômicas:</strong> Controlar rotas comerciais e adquirir
+            terras.
+          </li>
+          <li>
+            <strong>Políticas:</strong> Fortalecer o poder papal e a nobreza
+            guerreira.
+          </li>
+          <li>
+            <strong>Sociais:</strong> Válvula de escape para o excesso de nobres
+            sem terras na Europa.
+          </li>
+        </ul>
+
+        <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-2">
+          3. Principais Cruzadas
+        </h3>
+        <div class="overflow-x-auto mb-6">
+          <table class="w-full text-sm text-left border-collapse">
+            <thead class="bg-gray-100">
+              <tr>
+                <th class="p-3 border">Cruzada</th>
+                <th class="p-3 border">Data</th>
+                <th class="p-3 border">Resultado</th>
+              </tr>
+            </thead>
+            <tbody class="text-gray-700">
+              <tr>
+                <td class="p-3 border font-bold">1ª</td>
+                <td class="p-3 border">1096–1099</td>
+                <td class="p-3 border">
+                  Vitória cristã (Conquista de Jerusalém)
+                </td>
+              </tr>
+              <tr>
+                <td class="p-3 border font-bold">2ª</td>
+                <td class="p-3 border">1147–1149</td>
+                <td class="p-3 border">Fracasso</td>
+              </tr>
+              <tr>
+                <td class="p-3 border font-bold">3ª</td>
+                <td class="p-3 border">1189–1192</td>
+                <td class="p-3 border">
+                  Trégua (Ricardo Coração de Leão e Saladino)
+                </td>
+              </tr>
+              <tr>
+                <td class="p-3 border font-bold">4ª</td>
+                <td class="p-3 border">1202–1204</td>
+                <td class="p-3 border">Desvio (Saque de Constantinopla)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-2">
+          4. Consequências das Cruzadas
+        </h3>
+        <div class="grid md:grid-cols-3 gap-4 mb-6">
+          <div class="bg-blue-50 p-3 rounded border border-blue-100 text-sm">
+            <h4 class="font-bold text-blue-800 mb-1">Econômicas</h4>
+            <p>
+              Reabertura de rotas, feiras, circulação de moedas e
+              desenvolvimento de portos.
+            </p>
+          </div>
+          <div class="bg-green-50 p-3 rounded border border-green-100 text-sm">
+            <h4 class="font-bold text-green-800 mb-1">Sociais</h4>
+            <p>
+              Fortalecimento da burguesia e início do declínio da nobreza
+              feudal.
+            </p>
+          </div>
+          <div
+            class="bg-yellow-50 p-3 rounded border border-yellow-100 text-sm"
+          >
+            <h4 class="font-bold text-yellow-800 mb-1">Culturais</h4>
+            <p>
+              Contato com o Oriente islâmico, difusão de conhecimentos e
+              renascimento intelectual.
+            </p>
+          </div>
+        </div>
+
+        <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-2">
+          5. Renascimento comercial e o nascimento da burguesia
+        </h3>
+        <p class="text-gray-700 mb-4">
+          A Europa passou por uma renovação urbana impulsionada pelas feiras
+          (ex: Champagne) e pelo crescimento dos burgos. Surgiram as corporações
+          de ofício para regular o trabalho.
+        </p>
+        <p class="text-gray-700 italic font-semibold">
+          "O burgo foi o berço do homem moderno: comerciante, racional e
+          autônomo." – Henri Pirenne
+        </p>
+
+        <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-2">
+          6. O Capitalismo Comercial
+        </h3>
+        <ul class="list-disc list-inside text-gray-700 mb-6 ml-4 space-y-1">
+          <li>Busca por lucro e acúmulo de capital.</li>
+          <li>Expansão marítima e controle de novas rotas.</li>
+          <li>Uso crescente da moeda, crédito e bancos.</li>
+        </ul>
+
+        <div class="bg-gray-800 text-white p-4 rounded-lg mt-6 mb-8">
+          <h4 class="font-bold mb-2">Resumo – Da Idade Média à Moderna</h4>
+          <ul class="text-sm space-y-1">
+            <li>
+              <strong>Economia:</strong> Do feudalismo rural para o comércio
+              urbano.
+            </li>
+            <li>
+              <strong>Sociedade:</strong> Ascensão da burguesia e
+              enfraquecimento da nobreza.
+            </li>
+            <li>
+              <strong>Política:</strong> Fortalecimento do poder real
+              (monarquias nacionais).
+            </li>
+          </ul>
+        </div>
+
+        <div class="exercicios mt-8 border-t pt-6">
+          <h3 class="text-xl font-bold text-gray-800 mb-4">
+            Atividade de Fixação
+          </h3>
+          <div class="questao mb-4">
+            <p class="font-bold">
+              1. (ENEM – adaptada) As Cruzadas contribuíram para o fim do
+              feudalismo porque:
+            </p>
+            <ul class="mt-2 text-gray-700 space-y-1">
+              <li>a) reforçaram o poder dos senhores feudais.</li>
+              <li>b) aumentaram o isolamento da Europa Ocidental.</li>
+              <li>c) estimularam o comércio e o crescimento das cidades.</li>
+              <li>d) impediram o contato entre Oriente e Ocidente.</li>
+            </ul>
+          </div>
+          <div class="questao mb-4">
+            <p class="font-bold">
+              2. (UFRGS) O renascimento comercial e urbano resultou:
+            </p>
+            <ul class="mt-2 text-gray-700 space-y-1">
+              <li>a) do isolamento feudal e da servidão.</li>
+              <li>b) do aumento das trocas e da reabertura do Mediterrâneo.</li>
+              <li>c) da expansão árabe sobre o Ocidente cristão.</li>
+              <li>d) da redução da produção agrícola e da fome.</li>
+            </ul>
+          </div>
+          <details class="mt-4 p-4 bg-gray-100 rounded-md cursor-pointer">
+            <summary class="font-bold text-blue-700">
+              Clique aqui para ver o Gabarito
+            </summary>
+            <p class="mt-2 text-gray-800"><strong>1. Resposta: C</strong></p>
+            <p><strong>2. Resposta: B</strong></p>
+            <p class="mt-2 text-sm italic">
+              3. (Questão aberta) O crescimento do comércio urbano enriqueceu os
+              burgueses, que passaram a defender uma economia monetária e o
+              poder real, minando as bases do sistema feudal.
+            </p>
+          </details>
+        </div>
+      </div>
+
+      <div class="btn-container flex justify-between mt-10">
+        <button
+          class="btn bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded"
+          onclick="mudarPagina('aula7')"
+        >
+          &larr; Voltar (Aula 7)
+        </button>
+        <button
+          class="btn bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded"
+          onclick="mudarPagina('aula9')"
+        >
+          Ir para a Aula 9 &rarr;
+        </button>
+      </div>
+    </div>
+    <div id="aula8" class="page bg-white p-6 rounded-lg shadow-sm">
+      <div class="conteudo-livro">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">
+          AULA 8 – AS CRUZADAS E O RENASCIMENTO COMERCIAL E URBANO
+        </h2>
+
+        <div
+          class="objetivos bg-gray-50 p-4 rounded-md border-l-4 border-blue-500 mb-6"
+        >
+          <strong class="text-gray-700">Objetivos da Aula:</strong>
+          <ul class="list-disc list-inside text-gray-600 mt-2 space-y-1">
+            <li>Compreender o contexto religioso e político das Cruzadas.</li>
+            <li>
+              Analisar as consequências econômicas e culturais para a Europa.
+            </li>
+            <li>
+              Identificar o papel do renascimento comercial e urbano no fim do
+              feudalismo.
+            </li>
+            <li>
+              Relacionar esses processos com o surgimento da burguesia e do
+              capitalismo.
+            </li>
+          </ul>
+        </div>
+
+        <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-2">
+          1. O contexto: a Europa feudal em transformação
+        </h3>
+        <p class="text-gray-700 mb-4">
+          Entre os séculos XI e XIII, a Europa começou a sair do isolamento
+          feudal. O crescimento populacional, o aumento da produção agrícola e a
+          ação da Igreja criaram as condições para uma nova fase de expansão.
+        </p>
+
+        <blockquote
+          class="italic text-gray-600 border-l-4 border-gray-300 pl-4 py-2 mb-6"
+        >
+          “As Cruzadas foram o primeiro grande movimento coletivo do Ocidente
+          desde a queda de Roma.”
+          <br /><span class="text-sm font-bold">— Jacques Le Goff</span>
+        </blockquote>
+
+        <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-2">
+          2. As Cruzadas: guerras santas da cristandade
+        </h3>
+        <p class="text-gray-700 mb-4">
+          Expedições militares organizadas pela Igreja e reinos cristãos entre
+          os séculos XI e XIII para reconquistar Jerusalém e os lugares sagrados
+          sob domínio muçulmano.
+        </p>
+
+        <p class="font-semibold text-gray-800">Principais Motivações:</p>
+        <ul
+          class="list-disc list-inside text-gray-700 mt-2 mb-6 ml-4 space-y-1"
+        >
+          <li>
+            <strong>Religiosas:</strong> Libertar a Terra Santa e conquistar a
+            salvação.
+          </li>
+          <li>
+            <strong>Econômicas:</strong> Controlar rotas comerciais e adquirir
+            terras.
+          </li>
+          <li>
+            <strong>Políticas:</strong> Fortalecer o poder papal e a nobreza
+            guerreira.
+          </li>
+          <li>
+            <strong>Sociais:</strong> Válvula de escape para o excesso de nobres
+            sem terras na Europa.
+          </li>
+        </ul>
+
+        <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-2">
+          3. Principais Cruzadas
+        </h3>
+        <div class="overflow-x-auto mb-6">
+          <table class="w-full text-sm text-left border-collapse">
+            <thead class="bg-gray-100">
+              <tr>
+                <th class="p-3 border">Cruzada</th>
+                <th class="p-3 border">Data</th>
+                <th class="p-3 border">Resultado</th>
+              </tr>
+            </thead>
+            <tbody class="text-gray-700">
+              <tr>
+                <td class="p-3 border font-bold">1ª</td>
+                <td class="p-3 border">1096–1099</td>
+                <td class="p-3 border">
+                  Vitória cristã (Conquista de Jerusalém)
+                </td>
+              </tr>
+              <tr>
+                <td class="p-3 border font-bold">2ª</td>
+                <td class="p-3 border">1147–1149</td>
+                <td class="p-3 border">Fracasso</td>
+              </tr>
+              <tr>
+                <td class="p-3 border font-bold">3ª</td>
+                <td class="p-3 border">1189–1192</td>
+                <td class="p-3 border">
+                  Trégua (Ricardo Coração de Leão e Saladino)
+                </td>
+              </tr>
+              <tr>
+                <td class="p-3 border font-bold">4ª</td>
+                <td class="p-3 border">1202–1204</td>
+                <td class="p-3 border">Desvio (Saque de Constantinopla)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-2">
+          4. Consequências das Cruzadas
+        </h3>
+        <div class="grid md:grid-cols-3 gap-4 mb-6">
+          <div class="bg-blue-50 p-3 rounded border border-blue-100 text-sm">
+            <h4 class="font-bold text-blue-800 mb-1">Econômicas</h4>
+            <p>
+              Reabertura de rotas, feiras, circulação de moedas e
+              desenvolvimento de portos.
+            </p>
+          </div>
+          <div class="bg-green-50 p-3 rounded border border-green-100 text-sm">
+            <h4 class="font-bold text-green-800 mb-1">Sociais</h4>
+            <p>
+              Fortalecimento da burguesia e início do declínio da nobreza
+              feudal.
+            </p>
+          </div>
+          <div
+            class="bg-yellow-50 p-3 rounded border border-yellow-100 text-sm"
+          >
+            <h4 class="font-bold text-yellow-800 mb-1">Culturais</h4>
+            <p>
+              Contato com o Oriente islâmico, difusão de conhecimentos e
+              renascimento intelectual.
+            </p>
+          </div>
+        </div>
+
+        <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-2">
+          5. Renascimento comercial e o nascimento da burguesia
+        </h3>
+        <p class="text-gray-700 mb-4">
+          A Europa passou por uma renovação urbana impulsionada pelas feiras
+          (ex: Champagne) e pelo crescimento dos burgos. Surgiram as corporações
+          de ofício para regular o trabalho.
+        </p>
+        <p class="text-gray-700 italic font-semibold">
+          "O burgo foi o berço do homem moderno: comerciante, racional e
+          autônomo." – Henri Pirenne
+        </p>
+
+        <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-2">
+          6. O Capitalismo Comercial
+        </h3>
+        <ul class="list-disc list-inside text-gray-700 mb-6 ml-4 space-y-1">
+          <li>Busca por lucro e acúmulo de capital.</li>
+          <li>Expansão marítima e controle de novas rotas.</li>
+          <li>Uso crescente da moeda, crédito e bancos.</li>
+        </ul>
+
+        <div class="bg-gray-800 text-white p-4 rounded-lg mt-6 mb-8">
+          <h4 class="font-bold mb-2">Resumo – Da Idade Média à Moderna</h4>
+          <ul class="text-sm space-y-1">
+            <li>
+              <strong>Economia:</strong> Do feudalismo rural para o comércio
+              urbano.
+            </li>
+            <li>
+              <strong>Sociedade:</strong> Ascensão da burguesia e
+              enfraquecimento da nobreza.
+            </li>
+            <li>
+              <strong>Política:</strong> Fortalecimento do poder real
+              (monarquias nacionais).
+            </li>
+          </ul>
+        </div>
+
+        <div class="exercicios mt-8 border-t pt-6">
+          <h3 class="text-xl font-bold text-gray-800 mb-4">
+            Atividade de Fixação
+          </h3>
+          <div class="questao mb-4">
+            <p class="font-bold">
+              1. (ENEM – adaptada) As Cruzadas contribuíram para o fim do
+              feudalismo porque:
+            </p>
+            <ul class="mt-2 text-gray-700 space-y-1">
+              <li>a) reforçaram o poder dos senhores feudais.</li>
+              <li>b) aumentaram o isolamento da Europa Ocidental.</li>
+              <li>c) estimularam o comércio e o crescimento das cidades.</li>
+              <li>d) impediram o contato entre Oriente e Ocidente.</li>
+            </ul>
+          </div>
+          <div class="questao mb-4">
+            <p class="font-bold">
+              2. (UFRGS) O renascimento comercial e urbano resultou:
+            </p>
+            <ul class="mt-2 text-gray-700 space-y-1">
+              <li>a) do isolamento feudal e da servidão.</li>
+              <li>b) do aumento das trocas e da reabertura do Mediterrâneo.</li>
+              <li>c) da expansão árabe sobre o Ocidente cristão.</li>
+              <li>d) da redução da produção agrícola e da fome.</li>
+            </ul>
+          </div>
+          <details class="mt-4 p-4 bg-gray-100 rounded-md cursor-pointer">
+            <summary class="font-bold text-blue-700">
+              Clique aqui para ver o Gabarito
+            </summary>
+            <p class="mt-2 text-gray-800"><strong>1. Resposta: C</strong></p>
+            <p><strong>2. Resposta: B</strong></p>
+            <p class="mt-2 text-sm italic">
+              3. (Questão aberta) O crescimento do comércio urbano enriqueceu os
+              burgueses, que passaram a defender uma economia monetária e o
+              poder real, minando as bases do sistema feudal.
+            </p>
+          </details>
+        </div>
+      </div>
+
+      <div class="btn-container flex justify-between mt-10">
+        <button
+          class="btn bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded"
+          onclick="mudarPagina('aula7')"
+        >
+          &larr; Voltar (Aula 7)
+        </button>
+        <button
+          class="btn bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded"
+          onclick="mudarPagina('aula9')"
+        >
+          Ir para a Aula 9 &rarr;
+        </button>
+      </div>
+    </div>
+
+    <div id="aula9" class="page bg-white p-6 rounded-lg shadow-sm">
+    <div class="conteudo-livro">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">AULA 9 – RENASCIMENTO CULTURAL E O HUMANISMO</h2>
+        
+        <div class="objetivos bg-gray-50 p-4 rounded-md border-l-4 border-blue-500 mb-6">
+            <strong class="text-gray-700">Objetivos da Aula:</strong>
+            <ul class="list-disc list-inside text-gray-600 mt-2 space-y-1">
+                <li>Compreender o contexto histórico que deu origem ao Renascimento.</li>
+                <li>Identificar os princípios do Humanismo e da razão científica.</li>
+                <li>Reconhecer as principais características artísticas e intelectuais do período.</li>
+                <li>Relacionar o Renascimento às transformações da Idade Moderna.</li>
+            </ul>
+        </div>
+
+        <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-2">1. O contexto histórico: da crise feudal ao mundo moderno</h3>
+        <p class="text-gray-700 mb-4">O Renascimento Cultural surgiu entre os séculos XIV e XVI, especialmente nas cidades italianas como Florença, Veneza e Roma, impulsionado pelo enriquecimento comercial pós-Cruzadas.</p>
+        
+        <blockquote class="italic text-gray-600 border-l-4 border-gray-300 pl-4 py-2 mb-4">
+            “O Renascimento foi o despertar do homem e do mundo.” 
+            <br><span class="text-sm font-bold">— Jacob Burckhardt</span>
+        </blockquote>
+
+        <p class="font-semibold text-gray-800">Fatores principais:</p>
+        <ul class="list-disc list-inside text-gray-700 mt-2 mb-6 space-y-1 ml-4">
+            <li>Crescimento das cidades e fortalecimento da burguesia.</li>
+            <li>Influência da cultura clássica greco-romana.</li>
+            <li>Invenção da imprensa (Gutenberg, 1455).</li>
+            <li>Ação dos mecenas (financiadores de arte e ciência).</li>
+        </ul>
+
+        <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-2">2. O Humanismo: o homem no centro do mundo</h3>
+        <p class="text-gray-700 mb-4">O Humanismo substituiu o teocentrismo (Deus como centro) pelo <strong>antropocentrismo</strong> (o homem como medida de todas as coisas).</p>
+        
+        <div class="grid md:grid-cols-2 gap-4 mb-6">
+            <div class="bg-blue-50 p-3 rounded">
+                <h4 class="font-bold text-blue-800">Principais Pilares</h4>
+                <ul class="text-sm text-gray-700 list-disc list-inside">
+                    <li>Racionalismo e ciência.</li>
+                    <li>Individualismo e liberdade.</li>
+                    <li>Retorno aos clássicos greco-romanos.</li>
+                </ul>
+            </div>
+            <div class="bg-gray-100 p-3 rounded italic text-gray-700 flex items-center">
+                “O homem é o artífice e o criador de si mesmo.” — Pico della Mirandola
+            </div>
+        </div>
+
+        <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-2">3. Artes renascentistas: beleza e técnica</h3>
+        <p class="text-gray-700 mb-4">A arte rompeu com o simbolismo medieval, buscando realismo, perspectiva e proporção.</p>
+        
+        <div class="overflow-x-auto mb-6">
+            <table class="w-full text-sm text-left border-collapse">
+                <thead class="bg-gray-100">
+                    <tr><th class="p-3 border">Artista</th><th class="p-3 border">Área</th><th class="p-3 border">Obra</th></tr>
+                </thead>
+                <tbody class="text-gray-700">
+                    <tr><td class="p-3 border font-bold">Da Vinci</td><td class="p-3 border">Pintura</td><td class="p-3 border">Mona Lisa</td></tr>
+                    <tr><td class="p-3 border font-bold">Michelangelo</td><td class="p-3 border">Escultura</td><td class="p-3 border">Davi</td></tr>
+                    <tr><td class="p-3 border font-bold">Rafael</td><td class="p-3 border">Pintura</td><td class="p-3 border">Escola de Atenas</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-2">4. O Renascimento Científico</h3>
+        <p class="text-gray-700 mb-4">Rompeu com o dogmatismo da Igreja através da observação e do método experimental.</p>
+        <ul class="list-disc list-inside text-gray-700 mb-6 ml-4 space-y-1">
+            <li><strong>Nicolau Copérnico:</strong> Teoria Heliocêntrica.</li>
+            <li><strong>Galileu Galilei:</strong> Observações astronômicas e defesa do método experimental.</li>
+            <li><strong>Descartes:</strong> “Penso, logo existo” (base do racionalismo).</li>
+        </ul>
+
+        <div class="bg-gray-800 text-white p-4 rounded-lg mt-6 mb-8">
+            <h4 class="font-bold mb-2">Resumo – Comparativo Cultural</h4>
+            <div class="grid grid-cols-2 text-sm gap-2">
+                <div class="font-bold border-b border-gray-600">Aspecto</div><div class="font-bold border-b border-gray-600">Renascimento</div>
+                <div>Visão de Mundo</div><div>Antropocentrismo</div>
+                <div>Economia</div><div>Urbana e mercantil</div>
+                <div>Pensamento</div><div>Razão e observação</div>
+            </div>
+        </div>
+
+        <div class="exercicios mt-8 border-t pt-6">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Atividade de Fixação (ENEM / Vestibular)</h3>
+            
+            <div class="questao mb-4">
+                <p class="font-bold">1. (ENEM – adaptada) O Renascimento Cultural representou:</p>
+                <ul class="mt-2 text-gray-700 list-none space-y-2 ml-4">
+                    <li>a) o retorno ao teocentrismo e à autoridade papal.</li>
+                    <li>b) o predomínio do pensamento religioso sobre o racional.</li>
+                    <li>c) a valorização do homem e da razão em substituição à fé cega.</li>
+                    <li>d) a defesa da servidão e da economia feudal.</li>
+                </ul>
+            </div>
+
+            <div class="questao mb-4">
+                <p class="font-bold">2. (UFMG) Entre as características do Humanismo, destaca-se:</p>
+                <ul class="mt-2 text-gray-700 list-none space-y-2 ml-4">
+                    <li>a) a centralidade de Deus como guia da ação humana.</li>
+                    <li>b) o retorno à cultura clássica e a valorização do homem.</li>
+                    <li>c) o desprezo pela razão e pela ciência.</li>
+                    <li>d) a negação do individualismo e da arte.</li>
+                </ul>
+            </div>
+
+            <div class="questao mb-4">
+                <p class="font-bold">3. (Questão aberta) Explique como o Renascimento contribuiu para o surgimento do pensamento científico moderno e cite um exemplo de cientista renascentista.</p>
+            </div>
+
+            <details class="mt-4 p-4 bg-gray-100 rounded-md cursor-pointer">
+                <summary class="font-bold text-blue-700">Ver Gabarito</summary>
+                <div class="mt-2 text-gray-800 space-y-2">
+                    <p><strong>1. Resposta: C</strong></p>
+                    <p><strong>2. Resposta: B</strong></p>
+                    <p><strong>3. Resposta:</strong> O Renascimento estimulou o uso da observação e da razão, rompendo com o dogmatismo religioso. Galileu Galilei, por exemplo, utilizou o método experimental para comprovar o heliocentrismo.</p>
+                </div>
+            </details>
+        </div>
+    </div>
+    
+    <div class="btn-container flex justify-between mt-10">
+        <button class="btn bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded" onclick="mudarPagina('aula8')">&larr; Voltar (Aula 8)</button>
+        <button class="btn bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded" onclick="mudarPagina('aula10')">Ir para a Aula 10 &rarr;</button>
+    </div>
+</div>
+<!--Aula 10-->
+<div id="aula10" class="page bg-white p-6 rounded-lg shadow-sm">
+    <div class="conteudo-livro">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">AULA 10 – A REFORMA PROTESTANTE E A CONTRARREFORMA CATÓLICA</h2>
+        
+        <div class="objetivos bg-gray-50 p-4 rounded-md border-l-4 border-blue-500 mb-6">
+            <strong class="text-gray-700">Objetivos da Aula:</strong>
+            <ul class="list-disc list-inside text-gray-600 mt-2 space-y-1">
+                <li>Compreender as causas religiosas, políticas, econômicas e culturais da Reforma Protestante.</li>
+                <li>Identificar os principais reformadores e suas doutrinas.</li>
+                <li>Analisar a resposta da Igreja Católica através da Contrarreforma.</li>
+                <li>Relacionar o movimento reformista com as transformações da Idade Moderna.</li>
+            </ul>
+        </div>
+
+        <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-2">1. Contexto histórico: a Europa em mudança</h3>
+        <p class="text-gray-700 mb-4">Nos séculos XV e XVI, a Europa vivia um tempo de transformações profundas:</p>
+        <ul class="list-disc list-inside text-gray-700 mb-4 ml-4 space-y-1">
+            <li><strong>Renascimento:</strong> estímulo à razão e à crítica da autoridade.</li>
+            <li><strong>Burguesia:</strong> questionamento do poder e da riqueza da Igreja.</li>
+            <li><strong>Monarquias Nacionais:</strong> desejo dos reis de controlar a religião.</li>
+            <li><strong>Corrupção do clero:</strong> venda de cargos e indulgências.</li>
+        </ul>
+        <blockquote class="italic text-gray-600 border-l-4 border-gray-300 pl-4 py-2 mb-6">
+            “A Reforma foi o grito de uma consciência que despertava.” — Max Weber
+        </blockquote>
+
+        <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-2">2. As causas da Reforma Protestante</h3>
+        <div class="grid md:grid-cols-2 gap-4 mb-6">
+            <div class="bg-blue-50 p-3 rounded">
+                <h4 class="font-bold text-blue-800 mb-1">Religiosas & Culturais</h4>
+                <ul class="text-sm text-gray-700 list-disc list-inside">
+                    <li>Crise moral (simonia, indulgências).</li>
+                    <li>Distanciamento do povo (rituais em latim).</li>
+                    <li>Humanismo: pensamento crítico e Bíblia lida pelo fiel.</li>
+                </ul>
+            </div>
+            <div class="bg-yellow-50 p-3 rounded">
+                <h4 class="font-bold text-yellow-800 mb-1">Econômicas & Políticas</h4>
+                <ul class="text-sm text-gray-700 list-disc list-inside">
+                    <li>Igreja condenava o lucro (burguesia).</li>
+                    <li>Reis desejavam autonomia em relação ao Papa.</li>
+                    <li>Fortalecimento dos Estados Nacionais.</li>
+                </ul>
+            </div>
+        </div>
+
+        <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-2">3. Martinho Lutero e a Reforma na Alemanha</h3>
+        <p class="text-gray-700 mb-4">Em 1517, Lutero afixou suas 95 Teses criticando a venda de indulgências. Defendia a <strong>salvação pela fé</strong> e o <strong>sacerdócio universal</strong>. A Bíblia tornou-se a única fonte da verdade, traduzida para a língua do povo.</p>
+
+        <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-2">4. Calvinismo e Anglicanismo</h3>
+        <div class="overflow-x-auto mb-6">
+            <table class="w-full text-sm text-left border-collapse">
+                <thead class="bg-gray-100">
+                    <tr><th class="p-3 border">Movimento</th><th class="p-3 border">Líder</th><th class="p-3 border">Ponto Central</th></tr>
+                </thead>
+                <tbody class="text-gray-700">
+                    <tr><td class="p-3 border font-bold">Calvinismo</td><td class="p-3 border">João Calvino</td><td class="p-3 border">Predestinação e valorização do trabalho.</td></tr>
+                    <tr><td class="p-3 border font-bold">Anglicanismo</td><td class="p-3 border">Henrique VIII</td><td class="p-3 border">Rompimento político com o Papa (Ato de Supremacia).</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-2">5. A Contrarreforma Católica</h3>
+        <p class="text-gray-700 mb-4">A Igreja respondeu através do <strong>Concílio de Trento (1545–1563)</strong>:</p>
+        <ul class="list-disc list-inside text-gray-700 mb-4 ml-4 space-y-1">
+            <li>Reafirmação do dogma (fé + obras).</li>
+            <li>Criação do Índice de Livros Proibidos.</li>
+            <li>Fortalecimento da Inquisição.</li>
+            <li><strong>Companhia de Jesus:</strong> Jesuítas focados em educação e expansão da fé.</li>
+        </ul>
+
+        <div class="bg-gray-800 text-white p-4 rounded-lg mt-6 mb-8">
+            <h4 class="font-bold mb-2">Resumo – Reforma e Contrarreforma</h4>
+            <div class="grid grid-cols-2 text-sm gap-2">
+                <div class="font-bold border-b border-gray-600">Tema</div><div class="font-bold border-b border-gray-600">Destaque</div>
+                <div>Líderes Protestantes</div><div>Lutero, Calvino, Henrique VIII</div>
+                <div>Principal Doutrina</div><div>Fé individual (Protestantismo)</div>
+                <div>Resposta Católica</div><div>Concílio de Trento e Jesuítas</div>
+            </div>
+        </div>
+
+        <div class="exercicios mt-8 border-t pt-6">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Atividade de Fixação (ENEM / Vestibular)</h3>
+            
+            <div class="questao mb-4">
+                <p class="font-bold">1. (ENEM – adaptada) A Reforma Protestante contribuiu para o fortalecimento do Estado Nacional moderno porque:</p>
+                <ul class="mt-2 text-gray-700 list-none space-y-2 ml-4">
+                    <li>a) aumentou o poder do Papa sobre os reis.</li>
+                    <li>b) unificou toda a Europa sob a autoridade católica.</li>
+                    <li>c) reduziu o poder da Igreja sobre os governos locais.</li>
+                    <li>d) restabeleceu o domínio político do Sacro Império.</li>
+                </ul>
+            </div>
+
+            <div class="questao mb-4">
+                <p class="font-bold">2. (PUC-SP) Entre as causas da Reforma Protestante, destacam-se:</p>
+                <ul class="mt-2 text-gray-700 list-none space-y-2 ml-4">
+                    <li>a) a valorização da fé cega e da submissão ao Papa.</li>
+                    <li>b) a defesa da venda de indulgências e da simonia.</li>
+                    <li>c) a crise moral do clero e o avanço das ideias humanistas.</li>
+                    <li>d) o isolamento político e cultural da Igreja Oriental.</li>
+                </ul>
+            </div>
+
+            <div class="questao mb-4">
+                <p class="font-bold">3. (Questão aberta) Explique de que maneira o Calvinismo favoreceu a expansão do capitalismo moderno, segundo Max Weber.</p>
+            </div>
+
+            <details class="mt-4 p-4 bg-gray-100 rounded-md cursor-pointer">
+                <summary class="font-bold text-blue-700">Ver Gabarito</summary>
+                <div class="mt-2 text-gray-800 space-y-2 text-sm">
+                    <p><strong>1. Resposta: C</strong></p>
+                    <p><strong>2. Resposta: C</strong></p>
+                    <p><strong>3. Resposta:</strong> O Calvinismo valorizava o trabalho, a disciplina e o lucro como sinais da graça divina, o que estimulou a acumulação de capital e a ética do trabalho necessária ao capitalismo.</p>
+                </div>
+            </details>
+        </div>
+    </div>
+    
+    <div class="btn-container flex justify-between mt-10">
+        <button class="btn bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded" onclick="mudarPagina('aula09')">&larr; Voltar (Aula 09)</button>
+        <button class="btn bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded" onclick="mudarPagina('aula11')">Ir para Aula 11&rarr;</button>
+    </div>
+</div>
+<!--Aula 11-->
+<div id="aula11" class="page bg-white p-6 rounded-lg shadow-sm">
+    <div class="conteudo-livro">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">AULA 11 – GRANDES NAVEGAÇÕES E EXPANSÃO MARÍTIMA EUROPEIA</h2>
+        
+        <div class="objetivos bg-gray-50 p-4 rounded-md border-l-4 border-blue-500 mb-6">
+            <strong class="text-gray-700">Objetivos da Aula:</strong>
+            <ul class="list-disc list-inside text-gray-600 mt-2 space-y-1">
+                <li>Entender as causas econômicas, políticas, religiosas e científicas das Grandes Navegações.</li>
+                <li>Identificar o papel de Portugal e Espanha na Expansão Marítima.</li>
+                <li>Compreender as consequências globais da expansão europeia: colonização, comércio e escravidão.</li>
+                <li>Relacionar o tema com o contexto da formação do mundo moderno.</li>
+            </ul>
+        </div>
+
+        <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-2">1. Contexto histórico: o início da Idade Moderna</h3>
+        <p class="text-gray-700 mb-4">As Grandes Navegações aconteceram entre os séculos XV e XVI, marcando o início da Expansão Marítima Europeia. Elas foram resultado das transformações da Baixa Idade Média e do Renascimento, quando a Europa se reergueu após a crise feudal.</p>
+        
+        <h4 class="font-bold text-gray-800">Fatores de transição:</h4>
+        <ul class="list-disc list-inside text-gray-700 mt-2 mb-6 ml-4 space-y-1">
+            <li><strong>Renascimento comercial e urbano:</strong> aumento das trocas e crescimento das cidades.</li>
+            <li><strong>Formação das Monarquias Nacionais:</strong> que garantiram estabilidade política.</li>
+            <li><strong>Busca por metais preciosos e especiarias.</strong></li>
+            <li><strong>Avanços técnicos e científicos:</strong> bússola, astrolábio, caravela, cartografia.</li>
+            <li><strong>Expansão da fé cristã:</strong> missões religiosas e justificação ideológica da conquista.</li>
+        </ul>
+        
+        <blockquote class="italic text-gray-600 border-l-4 border-gray-300 pl-4 py-2 mb-6">
+            “O mar tornou-se a nova estrada da riqueza e do poder.” — Fernand Braudel
+        </blockquote>
+
+        <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-2">2. Causas das Grandes Navegações</h3>
+        <div class="overflow-x-auto mb-6">
+            <table class="w-full text-sm text-left border-collapse">
+                <thead class="bg-gray-100">
+                    <tr><th class="p-3 border">Tipo</th><th class="p-3 border">Descrição</th></tr>
+                </thead>
+                <tbody class="text-gray-700">
+                    <tr><td class="p-3 border font-bold">Econômica</td><td class="p-3 border">Busca de novas rotas para o Oriente e suas especiarias.</td></tr>
+                    <tr><td class="p-3 border font-bold">Política</td><td class="p-3 border">Fortalecimento dos Estados Nacionais.</td></tr>
+                    <tr><td class="p-3 border font-bold">Religiosa</td><td class="p-3 border">Expansão do cristianismo e combate ao islamismo.</td></tr>
+                    <tr><td class="p-3 border font-bold">Técnica</td><td class="p-3 border">Bússola, astrolábio, caravela e cartas de navegação.</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-2">3. Pioneirismo português</h3>
+        <p class="text-gray-700 mb-4">Portugal foi o primeiro país europeu a iniciar as navegações, devido a fatores geográficos e políticos favoráveis: localização voltada para o Atlântico, monarquia centralizada, apoio burguês e experiência marítima.</p>
+        
+        <div class="overflow-x-auto mb-6">
+            <table class="w-full text-sm text-left border-collapse">
+                <thead class="bg-gray-100">
+                    <tr><th class="p-3 border">Ano</th><th class="p-3 border">Navegador</th><th class="p-3 border">Feito</th></tr>
+                </thead>
+                <tbody class="text-gray-700">
+                    <tr><td class="p-3 border font-bold">1415</td><td class="p-3 border">-</td><td class="p-3 border">Tomada de Ceuta (Norte da África)</td></tr>
+                    <tr><td class="p-3 border font-bold">1488</td><td class="p-3 border">Bartolomeu Dias</td><td class="p-3 border">Dobrou o Cabo da Boa Esperança</td></tr>
+                    <tr><td class="p-3 border font-bold">1498</td><td class="p-3 border">Vasco da Gama</td><td class="p-3 border">Chegou à Índia (Rota do Cabo)</td></tr>
+                    <tr><td class="p-3 border font-bold">1500</td><td class="p-3 border">P. Á. Cabral</td><td class="p-3 border">Descobrimento oficial do Brasil</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-2">4. A expansão espanhola e Tordesilhas</h3>
+        <p class="text-gray-700 mb-4">Em 1492, Cristóvão Colombo chegou à América a serviço da Espanha. Para evitar conflitos, Portugal e Espanha assinaram o <strong>Tratado de Tordesilhas (1494)</strong>, dividindo o mundo entre as duas coroas.</p>
+
+        <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-2">5. Consequências globais</h3>
+        <ul class="list-disc list-inside text-gray-700 mb-6 ml-4 space-y-1">
+            <li><strong>Econômico:</strong> Formação do comércio mundial e capitalismo mercantil.</li>
+            <li><strong>Político:</strong> Expansão dos impérios ultramarinos.</li>
+            <li><strong>Social:</strong> Início da escravidão africana e genocídio indígena.</li>
+            <li><strong>Cultural:</strong> Choque de civilizações e aculturação.</li>
+        </ul>
+
+        <div class="bg-gray-800 text-white p-4 rounded-lg mt-6 mb-8">
+            <h4 class="font-bold mb-2">Resumo – Grandes Navegações</h4>
+            <div class="grid grid-cols-2 text-sm gap-2">
+                <div class="font-bold border-b border-gray-600">Aspecto</div><div class="font-bold border-b border-gray-600">Detalhe</div>
+                <div>Período</div><div>Séculos XV e XVI</div>
+                <div>Pioneiro</div><div>Portugal</div>
+                <div>Motivação</div><div>Especiarias, metais e fé</div>
+                <div>Divisão</div><div>Tratado de Tordesilhas (1494)</div>
+            </div>
+        </div>
+
+        <div class="exercicios mt-8 border-t pt-6">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Atividade de Fixação</h3>
+            
+            <div class="questao mb-4">
+                <p class="font-bold">1. A principal motivação econômica das Grandes Navegações foi:</p>
+                <ul class="mt-2 text-gray-700 list-none space-y-1 ml-4">
+                    <li>a) Apenas a expansão do cristianismo.</li>
+                    <li>b) A busca de novas rotas para o comércio de especiarias e metais preciosos.</li>
+                    <li>c) O desejo de derrotar os povos islâmicos.</li>
+                </ul>
+            </div>
+
+            <div class="questao mb-4">
+                <p class="font-bold">2. Portugal foi pioneiro devido a:</p>
+                <ul class="mt-2 text-gray-700 list-none space-y-1 ml-4">
+                    <li>a) Maior poder militar da Europa.</li>
+                    <li>b) Condições geográficas, políticas e apoio burguês.</li>
+                    <li>c) Frota mais numerosa do continente.</li>
+                </ul>
+            </div>
+
+            <details class="mt-4 p-4 bg-gray-100 rounded-md cursor-pointer">
+                <summary class="font-bold text-blue-700">Ver Gabarito</summary>
+                <div class="mt-2 text-gray-800 space-y-2 text-sm">
+                    <p><strong>1. Resposta: B</strong></p>
+                    <p><strong>2. Resposta: B</strong></p>
+                    <p><strong>3. (Questão aberta):</strong> A expansão marítima permitiu o acúmulo de metais preciosos, a abertura de novos mercados globais e a exploração de mão de obra colonial, fundamentais para a transição do feudalismo para o capitalismo comercial.</p>
+                </div>
+            </details>
+        </div>
+    </div>
+    
+    <div class="btn-container flex justify-between mt-10">
+        <button class="btn bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded" onclick="mudarPagina('aula10')">&larr; Voltar (Aula 10)</button>
+        <button class="btn bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded" onclick="mudarPagina('aula12')">Ir para (Aula12)&rarr;</button>
+    </div>
+</div>
+  </body>
+</html>
